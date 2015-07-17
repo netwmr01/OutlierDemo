@@ -32,7 +32,15 @@ public class MethodController {
 		Collection<SortedCandidate> result = userStudy.getMethod1(intk, doubler);
 		return result;
 	}
+	@RequestMapping("/method2")
+	public void getMethod2(@RequestParam(value="id") String id){
+		
+	}
 	
+	@RequestMapping("/method3")
+	public void getMethod3(){
+		
+	}
 	@RequestMapping("/getInitData")
 	public @ResponseBody ArrayList<ArrayList<SortedCandidate>> getAllPoints(){
 		return userStudy.getDataPlane();
