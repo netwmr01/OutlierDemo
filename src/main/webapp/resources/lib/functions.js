@@ -42,25 +42,24 @@
             console.log('range value has changed to :'+'K:'+$scope.kvalue+'R:'+$scope.rvalue);
             $http.get('http://localhost:8080/method1?k='+$scope.kvalue+'&r='+$scope.rvalue).
                 success(function(data) {
-                    var dataPoint = d3.selectAll('.dataPoint');
-                    var hashtable = {};
+                    //reset current outliers
+                    d3.selectAll('.outlier')
+                        .classed('outlier', false);
+                    //mark outliers
                     data.forEach(function(element){
-                         var key  = element.id.toString();
-                        hashtable[key]=true;
-                    });
-                    console.log(hashtable);
-                    dataPoint.style('fill',function(d){
-                        key = d.point.id.toString();
-                        var outlier = key in hashtable;
-                        return outlier ? 'red':'#1F77B4';    
-                    });
+                        var sPoint = d3.select('#id'+element.id.toString());
+                        if(sPoint){
+                            console.log(sPoint.data()[0].point.id);
+                            sPoint.classed('outlier', true);
+                            console.log(sPoint.classed('outlier'));
+                        }
+                    }); 
                 }).
                 error(function(data) {
                     // d3.selectAll('.dataPoint')
                     // .style('fill',function(d) {
                     //                 return (d.distanceList[$scope.kvalue-1] > +$scope.rvalue)
                     //                         ? 'red' : '#1f77b4';});
-
                     console.log("Fail getting outlier data");
 
                     //var dataPoint = d3.selectAll('.dataPoint');
@@ -118,10 +117,18 @@
 
             // setup zoomed function
             function zoomed() {
+                var t = d3.event.translate,
+                    s = d3.event.scale;
+                //comstrain zoomed window to bounds of graph
+                t[0] = Math.max(-width*(s-1), Math.min(t[0], 0)); 
+                t[1] = Math.max(-height*(s-1), Math.min(t[1], 0));
+                zoom.translate(t);
 
+                //redraws axis
                 svg.select(".x.axis").call(xAxis);
                 svg.select(".y.axis").call(yAxis);
 
+                //redraws points
                 svg.selectAll('.dataPoint')
                     .attr("cx", function(d, i) { return xMap(d); })
                     .attr("cy", function(d, i) { return yMap(d); });
@@ -159,20 +166,20 @@
 
             // load data
             d3.json("resources/lib/dataplane.json", function(error, data) {
+//                data.forEach(function(element){
+//                    // change string (from JSON) into number format
+//                    element.point.lat= +element.point.lat;
+//                    element.point.lon = +element.point.lon;
+//                    element.point.id=+element.point.id;
+//                });
 
-                data.forEach(function(element){
-                    // change string (from JSON) into number format
-                    element.point.lat= +element.point.lat;
-                    element.point.lon = +element.point.lon;
-                    element.point.id=+element.point.id;
-                });
-
-                zoom.x(xScale).y(yScale);
 
                 console.log("Finish loading data plane values");
 
                 xScale.domain([d3.min(data, xValue), d3.max(data, xValue)]);
                 yScale.domain([d3.min(data, yValue), d3.max(data, yValue)]);
+
+                zoom.x(xScale).y(yScale);
 
                 // x-axis
                 svg.append("g")
@@ -206,9 +213,9 @@
                     .attr("r", 3.5)
                     .attr("cx", xMap)
                     .attr("cy", yMap)
-                    .style("fill", function(d) { return color(cValue(d));})
                     .classed('dataPoint', true)
                     .attr("clip-path", "url(#clip)")
+                    .attr('id',function(d){return'id'+d.point.id;})
                     .on("mouseover", function(d) {
                         tooltip.transition()
                             .duration(200)
@@ -255,7 +262,7 @@
             link: link,
             restrict: 'E',
             scope: { data: '=' }
-        }
+        };
     });
 
 

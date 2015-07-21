@@ -80,7 +80,7 @@
                             <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
                             <p>K Value: </p>
                             {{kvalue}}
-                            <input class="span3" name="kvaluerange" type="range" min="1" max="10" ng-model="kvalue" ng-mouseup="updateKRValue()"></input>
+                            <input class="span3" name="kvaluerange" ng-init="updateKRValue()" type="range" min="1" max="10" ng-model="kvalue" ng-mouseup="updateKRValue()"></input>
                             <br></br>
                             <p>R Value: </p>
                             {{rvalue}}
