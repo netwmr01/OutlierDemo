@@ -23,31 +23,65 @@
         ];
     });
 
-    indexApp.controller('data_retrieve_controller',function($scope){
-        d3.json('plane_data.json',function(err,data){
-            if(err){
-                throw err;
-            }
-            $scope.data=data;
-            $scope.$apply();
-        });
-    });
+    // indexApp.controller('data_retrieve_controller',function($scope){
+    //     d3.json('plane_data.json',function(err,data){
+    //         if(err){
+    //             throw err;
+    //         }s
+    //         $scope.data=data;
+    //         $scope.$apply();
+    //     });
+    // });
+
+    //var simpleJSONStream = [{"id":32041},{"id":38757},{"id":38756},{"id":32077},{"id":32227},{"id":32229},{"id":32232},{"id":32235},{"id":32296},{"id":32303},{"id":32305},{"id":32387},{"id":32469},{"id":32470},{"id":32507},{"id":32508},{"id":32514},{"id":32515},{"id":32521},{"id":32522},{"id":32523},{"id":32529},{"id":32530},{"id":32554},{"id":32560},{"id":32561},{"id":32715},{"id":32721},{"id":32722},{"id":32804},{"id":32819},{"id":32826},{"id":32825},{"id":15595},{"id":15579},{"id":23337}];
+
     indexApp.controller('getKRValue',function($scope,$http){
         $scope.kvalue=5;
         $scope.rvalue=5000;
         $scope.updateKRValue=function(){
             console.log('range value has changed to :'+'K:'+$scope.kvalue+'R:'+$scope.rvalue);
             $http.get('http://localhost:8080/method1?k='+$scope.kvalue+'&r='+$scope.rvalue).
-                        success(function(data) {
-//                            $scope.kvalue = data;
-                        	console.log('Data Retrieved'+data);
-                        }).
-                        error(function(data) {
-                            console.log('Fail to Retrieve data');
-                        });
-        }
+                success(function(data) {
+                    var dataPoint = d3.selectAll('.dataPoint');
+                    var hashtable = {};
+                    data.forEach(function(element){
+                         var key  = element.id.toString();
+                        hashtable[key]=true;
+                    });
+                    console.log(hashtable);
+                    dataPoint.style('fill',function(d){
+                        key = d.point.id.toString();
+                        var outlier = key in hashtable;
+                        return outlier ? 'red':'#1F77B4';    
+                    });
+                }).
+                error(function(data) {
+                    // d3.selectAll('.dataPoint')
+                    // .style('fill',function(d) {
+                    //                 return (d.distanceList[$scope.kvalue-1] > +$scope.rvalue)
+                    //                         ? 'red' : '#1f77b4';});
 
-    });
+                    console.log("Fail getting outlier data");
+
+                    //var dataPoint = d3.selectAll('.dataPoint');
+                    //var hashtable = {};
+                    //simpleJSONStream.forEach(function(element){
+                    //     var key  = element.id.toString();
+                    //    hashtable[key]=true;
+                    //});
+                    //console.log(hashtable);
+                    //dataPoint.style('fill',function(d){
+                    //    key = d.point.id.toString();
+                    //    var outlier = key in hashtable;
+                    //    if(outlier){
+                    //        console.log('outlier');
+                    //    }
+                    //    return outlier ? 'red':'#1F77B4';
+                    //});
+                });
+
+            };
+        });
 
     indexApp.directive('dataplane',function(){
         function link(scope,element,attr){
@@ -65,18 +99,33 @@
              * map function - maps from data value to display value
              * axis - sets up axis
              */
-
             // setup x
-            var xValue = function(d) { return d.x;}, // data -> value
+            var xValue = function(d) { return d.point.lat;}, // data -> value
                 xScale = d3.scale.linear().range([0, width]), // value -> display
                 xMap = function(d) { return xScale(xValue(d));}, // data -> display
                 xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
             // setup y
-            var yValue = function(d) { return d["y"];}, // data -> value
+            var yValue = function(d) { return d.point.lon;}, // data -> value
                 yScale = d3.scale.linear().range([height, 0]), // value -> display
                 yMap = function(d) { return yScale(yValue(d));}, // data -> display
                 yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+            // setup zoom
+            var zoom = d3.behavior.zoom()
+                .scaleExtent([1,10])
+                .on("zoom", zoomed);
+
+            // setup zoomed function
+            function zoomed() {
+
+                svg.select(".x.axis").call(xAxis);
+                svg.select(".y.axis").call(yAxis);
+
+                svg.selectAll('.dataPoint')
+                    .attr("cx", function(d, i) { return xMap(d); })
+                    .attr("cy", function(d, i) { return yMap(d); });
+            }
 
             // setup fill color
             var cValue = function(d) { return d.type;},
@@ -87,7 +136,21 @@
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .call(zoom);
+
+                svg
+                .append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .attr('fill','#ddd')
+                .style("pointer-events", "all");
+
+                svg.append("clipPath")
+                .attr("id", "clip")
+                .append("rect")
+                .attr("width", width)
+                .attr("height", height);
 
             // add the tooltip area to the webpage
             var tooltip = d3.select(element[0]).append("div")
@@ -95,17 +158,21 @@
                 .style("opacity", 0);
 
             // load data
-            d3.csv("resources/lib/data.csv", function(error, data) {
+            d3.json("resources/lib/dataplane.json", function(error, data) {
 
-                // change string (from CSV) into number format
-                data.forEach(function(d) {
-                    d.x = +d.x;
-                    d["y"] = +d["y"];
-                    //    console.log(d);
+                data.forEach(function(element){
+                    // change string (from JSON) into number format
+                    element.point.lat= +element.point.lat;
+                    element.point.lon = +element.point.lon;
+                    element.point.id=+element.point.id;
                 });
 
-                xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
-                yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
+                zoom.x(xScale).y(yScale);
+
+                console.log("Finish loading data plane values");
+
+                xScale.domain([d3.min(data, xValue), d3.max(data, xValue)]);
+                yScale.domain([d3.min(data, yValue), d3.max(data, yValue)]);
 
                 // x-axis
                 svg.append("g")
@@ -140,11 +207,13 @@
                     .attr("cx", xMap)
                     .attr("cy", yMap)
                     .style("fill", function(d) { return color(cValue(d));})
+                    .classed('dataPoint', true)
+                    .attr("clip-path", "url(#clip)")
                     .on("mouseover", function(d) {
                         tooltip.transition()
                             .duration(200)
                             .style("opacity", 1.4);
-                        tooltip.html("ID: "+d["id"] + "<br/> (" + xValue(d)
+                        tooltip.html("ID: "+ d.point.id + "<br/> (" + xValue(d)
                             + ", " + yValue(d) + ")")
                             .style("left", (d3.event.layerX + 5) + "px")
                             .style("top", (d3.event.layerY - 28) + "px");
@@ -177,6 +246,8 @@
                 //    .attr("dy", ".35em")
                 //    .style("text-anchor", "end")
                 //    .text(function(d) { return d;})
+
+
             });
 
         }
