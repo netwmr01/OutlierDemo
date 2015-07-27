@@ -19,5 +19,8 @@ public class OutlierID {
 			return false;
 		}
 	}
+	public int hashCode() {
+	    return this.id;
+	  }
 
 }

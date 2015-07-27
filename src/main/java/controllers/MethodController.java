@@ -21,6 +21,8 @@ import util.dsrg.cs.wpi.edu.SortedCandidate;
 public class MethodController {
 	UserStudy userStudy;
 	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();
+	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();
+	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();
 
 	public MethodController(){
 		userStudy = new UserStudy();
@@ -92,7 +94,7 @@ public class MethodController {
 
 
 	@RequestMapping("/getConstants")
-	public @ResponseBody ArrayList getOspace(@RequestParam(value="kmin") String kmin, 
+	public @ResponseBody ArrayList getOSpace(@RequestParam(value="kmin") String kmin, 
 			@RequestParam(value="kmax") String kmax,
 			@RequestParam(value="rmin") String rmin,
 			@RequestParam(value="rmax") String rmax){
@@ -136,11 +138,55 @@ public class MethodController {
 		ArrayList<Collection<OutlierID>> results = new ArrayList<Collection<OutlierID>>();
 		results.add(constantOutlier);
 		results.add(constantInlier);
+		
+		constantSet.addAll(constantOutlier);
+		
+		outlierCandidates.addAll(idDataPlane);
+		outlierCandidates.removeAll(constantInlier);
+		outlierCandidates.removeAll(constantOutlier);
+		
+		
 
 		return results;
-
-
 	}
+	
+	@RequestMapping("/getCurrentOutliers")
+	public @ResponseBody ArrayList getCurrentOutliers(@RequestParam(value="kvalue") String kvalue, 
+			@RequestParam(value="rvalue") String rvalue){
+		int k=Integer.valueOf(kvalue);
+		int r=Integer.valueOf(rvalue);
+		
+		Collection<SortedCandidate> rawConstantOutlier = userStudy.getMethod1(k, r);
+
+		Collection<OutlierID> currentOutliers = new ArrayList<OutlierID>();
+		Collection<OutlierID> currentInliers = new ArrayList<OutlierID>();
+
+		Iterator iteCCO = rawConstantOutlier.iterator();
+		
+		while(iteCCO.hasNext()){
+			SortedCandidate data = (SortedCandidate) iteCCO.next();
+			int id = Integer.valueOf((String)((MapNode) data.getPoint()).getID());
+			OutlierID candidate = new OutlierID(id);
+			if(constantSet.contains(candidate)){
+				continue;
+			}
+			currentOutliers.add(candidate);
+		}
+		
+		currentInliers.addAll(outlierCandidates);
+		currentInliers.removeAll(currentOutliers);
+		
+		
+		ArrayList<Collection<OutlierID>> results = new ArrayList<Collection<OutlierID>>();
+		results.add(currentOutliers);
+		results.add(currentInliers);
+		
+		
+		return results;
+	}
+	
+	
+	
 
 
 }
