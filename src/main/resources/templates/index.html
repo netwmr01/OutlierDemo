@@ -1,49 +1,27 @@
 <!DOCTYPE  html>
 <html lang="en" ng-app="indexApp">
-
-<style>
-    body {
-        font: 11px sans-serif;
-    }
-
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-    }
-
-    .dot {
-        stroke: #000;
-    }
-
-    .tooltip {
-    	background-color: #269abc;
-        color: #dff0d8;
-        position: absolute;
-        width: 100px;
-        height: 28px;
-        pointer-events: none;
-
-    }
-    
-    .dataPoint{
-        fill:#1F77B4;
-    }
-
-    .outlier{
-        fill:red;
-    }
-</style>
-
 <head>
     <title>ONION</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" href="resources/lib/bootstrap.min.css"/>
-    <script src="resources/lib/angular.js"></script>
-    <script src="resources/lib/functions.js"></script>
-    <script src="resources/lib/ui-bootstrap-tpls-0.13.0.js"></script>
+    <link rel="stylesheet" href="resources/lib/vendor/bootstrap.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="resources/lib/style.css"></link>
+    <script src="resources/lib/vendor/angular.js"></script>
+    <script src="resources/lib/app.js"></script>
+    <!---controllers -->
+    <script src="resources/lib/controllers/boundaryCtrl.js"></script>
+    <script src="resources/lib/controllers/datasetCtrl.js"></script>
+    <script src="resources/lib/controllers/tabCtrl.js"></script>
+    <script src="resources/lib/controllers/sliderCtrl.js"></script>
+    <!---directives -->
+    <script src="resources/lib/directives/boundary.js"></script>
+    <script src="resources/lib/directives/dataplane.js"></script>
+    <script src="resources/lib/directives/stringToNumber.js"></script>
+    <!---services -->
+    <script src="resources/lib/services/updateBoundaryGraph.js"></script>
+    <script src="resources/lib/services/getConstLiers.js"></script>
+    <script src="resources/lib/services/updateKR.js"></script>
+    <script src="resources/lib/vendor/ui-bootstrap-tpls-0.13.1.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <!--<script src="resources/lib/d3functions.js"></script>-->
 </head>
@@ -70,49 +48,59 @@
     </div>
 </nav>
 
-<div class="container">
-    <div class="jumbotron" ng-controller="TabCtrl">
-        <tabset>
-            <tab heading="Outlier Detection">
-                <div class="container">
-                    <div class="col-md-6" ng-controller="getKRValue">
-                        <form class="row-fluid" ng-submit="updateKRValue()">
-                            <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+<div class="container-fluid" >
+    <div class="col-md-6">
+        <div  ng-controller="TabCtrl">
+            <tabset class="tabs" >
+                <tab heading="OD" ng-controller="sliderCtrl">
+                    <div>
+                        <form class="row-fluid" ng-submit="updateKRValue()" >
                             <p>K Value: </p>
                             {{kvalue}}
-                            <input class="span3" name="kvaluerange" ng-init="updateKRValue()" type="range" min="1" max="10" ng-model="kvalue" ng-mouseup="updateKRValue()"></input>
+                            <input name="kvaluerange" ng-init="updateKRValue()" type="range" min="1" max="10" ng-model="kvalue" ng-mouseup="updateKRValue()"></input>
                             <input type="number" min="0" max="10" class="string-to-number" ng-model="kvalue"></input>
-                            <br></br>
                             <p>R Value: </p>
                             {{rvalue}}
-                            <input class="span3" name="rvaluerange" type="range" min="1" max="10000" ng-model="rvalue" ng-mouseup="updateKRValue()"></input>
-                        	<input type="number" min="0" max="10000" class="string-to-number" ng-model="rvalue" ></input>
+                            <input  name="rvaluerange" type="range" min="1" max="10000" ng-model="rvalue" ng-mouseup="updateKRValue()"></input>
+                            <input type="number" min="0" max="10000" class="string-to-number" ng-model="rvalue" ></input>
                             <br></br>
                             <p></p>
                             <button type="submit" class="btn btn-primary"> Update</button>
                         </form>
                     </div>
-                    <dataplane class="col-md-6"></dataplane>
-                </div>
-            </tab>
-            <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
-                {{tab.content}}
-            </tab>
-        </tabset>
+                </tab>
+                <tab heading="PSE" ng-controller="boundaryCtrl">
+                    <boundary></boundary>
+                </tab>
+                <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
+                    {{tab.content}}
+                </tab>
+            </tabset>
+        </div>
     </div>
-    <!--<div class="row">-->
-    <!--<div class="col-md-4">-->
-    <!--<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>-->
-    <!--</div>-->
-    <!--<div class="col-md-4">-->
-    <!--<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>-->
-    <!--</div>-->
-    <!--<div class="col-md-4">-->
-    <!--<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>-->
-    <!--</div>-->
-    <!--<div class="clearfix visible-lg"></div>-->
-    <!--</div>-->
+    <div class="col-md-6">
+        <div>
+            <tabset class="tabs"  ng-controller="datasetCtrl">
+                <tab heading="Data Set">
+                    <dataplane></dataplane>
+                </tab>
+            </tabset>
+        </div>
+    </div>
 </div>
+<!--<div class="row">-->
+<!--<div class="col-md-4">-->
+<!--<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>-->
+<!--</div>-->
+<!--<div class="col-md-4">-->
+<!--<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>-->
+<!--</div>-->
+<!--<div class="col-md-4">-->
+<!--<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>-->
+<!--</div>-->
+<!--<div class="clearfix visible-lg"></div>-->
+<!--</div>-->
+
 
 </body>
 </html>

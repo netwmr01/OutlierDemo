@@ -1,0 +1,8 @@
+[
+  {"r":30245.00025727718,"type":"Inlier","point":{"id":"15579","lat":0.252911,"lon":0.970149,"partitionName":"n0e0"}},
+  {"r":84304.17487819084,"type":"Outlier","point":{"id":"23337","lat":0.315987,"lon":0.15721,"partitionName":"n0e0"}},
+  {"r":1.7976931348623157E308,"type":"Outlier","point":{"id":"32470","lat":0.536308,"lon":0.967674,"partitionName":"n0e0"}},
+  {"r":1.7976931348623157E308,"type":"Outlier","point":{"id":"32804","lat":0.581188,"lon":0.9625,"partitionName":"n0e0"}},
+  {"r":1.7976931348623157E308,"type":"Outlier","point":{"id":"32304","lat":0.514481,"lon":0.900107,"partitionName":"n0e0"}},
+  {"r":1.7976931348623157E308,"type":"Outlier","point":{"id":"32805","lat":0.581234,"lon":0.877122,"partitionName":"n0e0"}}
+]

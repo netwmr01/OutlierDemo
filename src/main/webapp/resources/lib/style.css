@@ -1,0 +1,75 @@
+body {
+    font: 15px sans-serif;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.tick text{
+    font-size: 12px;
+}
+
+.tick line{
+    opacity: 0.2;
+}
+
+.dot {
+    stroke: #000;
+}
+
+.tooltip {
+    background-color: #269abc;
+    color: #dff0d8;
+    position: absolute;
+    width: 100px;
+    height: 28px;
+    pointer-events: none;
+
+}
+
+.dataPoint{
+    fill:#1F77B4;
+}
+
+.outlier{
+    fill:red;
+}
+
+.selected{
+    stroke-opacity:1;
+    stroke-width:3px;
+}
+
+.line {
+    fill: none;
+    stroke-width: 3px;
+}
+
+.selectionRect{
+    fill:none;
+    stroke:black;
+    stroke-width:3px;
+}
+
+.KRSelector{
+    fill:white;
+}
+
+.constOut{
+    fill:orange;
+}
+
+.constIn{
+    fill:purple;
+}
+
+.krinput{
+    background-color: #080808;
+    align-content:center;
+    width: 500px;
+    height: 500px;
+}

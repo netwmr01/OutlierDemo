@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import demo.dsrg.cs.wpi.edu.*;
 import demo.dsrg.cs.wpi.edu.UserStudy.DataResult;
+import detection.dsrg.cs.wpi.edu.KSortedDataPlain;
+import models.KSList;
+import models.OutlierID;
+import models.RCandidates;
 import openmap.dsrg.cs.wpi.edu.MapNode;
 import openmap.dsrg.cs.wpi.edu.MapOutlierCandidate;
 import util.dsrg.cs.wpi.edu.SortedCandidate;
@@ -145,6 +149,7 @@ public class MethodController {
 		outlierCandidates.removeAll(constantInlier);
 		outlierCandidates.removeAll(constantOutlier);
 		
+		System.out.println("Outlier Candidates #: "+outlierCandidates.size());
 		
 
 		return results;
@@ -181,8 +186,87 @@ public class MethodController {
 		results.add(currentOutliers);
 		results.add(currentInliers);
 		
+		System.out.println("Outlier Candidates #: "+outlierCandidates.size());
+		System.out.println("Current Outliers #: "+currentOutliers.size());
+		System.out.println("Current Inliers#: "+currentInliers.size());
+		
+		
 		
 		return results;
+	}
+	
+	@RequestMapping("/getKSortedList")
+	public @ResponseBody ArrayList getKSortedList(){
+		
+		KSortedDataPlain kSortedDataPlain = userStudy.getKSortedList();
+		ArrayList<ArrayList<SortedCandidate>> rawdp = kSortedDataPlain.getEntireSpace();
+		
+		System.out.println("rawdp size: "+rawdp.size());
+		
+		Iterator ite = rawdp.iterator();
+		ArrayList<KSList> dp = new ArrayList<KSList>();
+		int counter = 0;
+		while(ite.hasNext()){
+			KSList kslist = new KSList(counter);
+			ArrayList<SortedCandidate> sortedCandidateList=(ArrayList<SortedCandidate>) ite.next();
+			Iterator scite = sortedCandidateList.iterator();
+			while(scite.hasNext()){
+				SortedCandidate sc = (SortedCandidate) scite.next();
+				RCandidates rcandidates = new RCandidates(sc.r,Integer.valueOf(((MapNode)sc.getPoint()).getID()));
+				kslist.klist.add(rcandidates);
+			}
+			dp.add(kslist);
+			counter++;
+		}
+		
+		return dp;
+		
+	}
+	
+	@RequestMapping("/getKSortedListRange")
+	public @ResponseBody ArrayList<KSList> getKSortedListRange(@RequestParam(value="kmin") String kmin, 
+			@RequestParam(value="kmax") String kmax,
+			@RequestParam(value="rmin") String rmin,
+			@RequestParam(value="rmax") String rmax){
+		
+		System.out.println("getKSortedListRange Get Called!");
+		
+		KSortedDataPlain kSortedDataPlain = userStudy.getKSortedList();
+		ArrayList<ArrayList<SortedCandidate>> rawdp = kSortedDataPlain.getEntireSpace();
+		
+		Iterator<ArrayList<SortedCandidate>> ite = rawdp.iterator();
+		ArrayList<KSList> dp = new ArrayList<KSList>();
+		int kcounter = 0;
+		while(ite.hasNext()){
+			if(kcounter<Integer.valueOf(kmin) ){
+				kcounter++;
+				continue;
+			}else if(kcounter >Integer.valueOf(kmax)){
+				break;
+			}
+			System.out.println("getKSortedListRange Working !");
+			KSList kslist = new KSList(kcounter);
+			ArrayList<SortedCandidate> sortedCandidateList=(ArrayList<SortedCandidate>) ite.next();
+			Iterator scite = sortedCandidateList.iterator();
+			while(scite.hasNext()){
+				SortedCandidate sc = (SortedCandidate) scite.next();
+				if(sc.r<Double.valueOf(rmin)||sc.r>Double.valueOf(rmax)){
+					continue;
+				}
+				RCandidates rcandidates = new RCandidates(sc.r,Integer.valueOf(((MapNode)sc.getPoint()).getID()));
+				kslist.klist.add(rcandidates);
+			}
+			boolean success = dp.add(kslist);
+			System.out.println("Add success or not: "+success);
+			kcounter++;
+			
+			System.out.println("Looping");
+		}
+		
+		System.out.println("getKSortedListRange Finished!");
+		
+		return dp;
+		
 	}
 	
 	
