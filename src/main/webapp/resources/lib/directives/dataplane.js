@@ -1,4 +1,4 @@
-angular.module('indexApp').directive('dataplane',['updateBoundaryGraph',function(updateBoundaryGraph){
+angular.module('indexApp').directive('dataplane',['updateBoundaryGraph','densityMatrix', function(updateBoundaryGraph,densityMatrix){
     function link(scope,element,attr){
         /**
          * Created by Tommzy on 7/7/2015.
@@ -56,21 +56,25 @@ angular.module('indexApp').directive('dataplane',['updateBoundaryGraph',function
         var cValue = function(d) { return d.type;},
             color = d3.scale.category10();
 
-        // add the graph canvas to the body of the webpage
+        // add the graph svg to the body of the webpage
         var svg = d3.select(element[0]).append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
+            .classed('boundary',true)
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .call(zoom);
 
+        // sets up graph rectangle
         svg
             .append("rect")
             .attr("width", width)
             .attr("height", height)
             .attr('fill','#ddd')
+            .attr('stroke','black')
             .style("pointer-events", "all");
 
+        // sets up clip path
         svg.append("clipPath")
             .attr("id", "clip")
             .append("rect")
@@ -91,7 +95,7 @@ angular.module('indexApp').directive('dataplane',['updateBoundaryGraph',function
 //				element.point.id=+element.point.id;
 //				});
 
-
+            densityMatrix.setData(data);
             console.log("Finish loading data plane values");
 
             // sets domain of the scales

@@ -1,6 +1,6 @@
 angular.module('indexApp').directive('boundary', 
-    ['$window', 'updateBoundaryGraph', 'getConstLiers', 'updateKR',
-    function($window,updateBoundaryGraph, getConstLiers, updateKR){
+    ['$window', 'updateBoundaryGraph', 'getConstLiers', 'updateKR', 'densityMatrix',
+    function($window,updateBoundaryGraph, getConstLiers, updateKR,densityMatrix){
     return{
         restrict:'E',
         link: function(scope,element,attr){
@@ -41,6 +41,9 @@ angular.module('indexApp').directive('boundary',
                 //     .scaleExtent([1,10])
                 //     .on("zoom", zoomed);
 
+                var drag = d3.behavior.drag()
+                    .on("drag", dragmove);
+
                 // Adds the svg canvas
                 svg = d3.select("boundary")
                     .insert("svg")
@@ -48,11 +51,9 @@ angular.module('indexApp').directive('boundary',
                     .attr("height", height + margin.top + margin.bottom)
                     .append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .classed('boundaryGraph',true);
+                    .classed('boundaryGraph',true)
+                    .call(drag);
                     // .call(zoom);
-
-                    var drag = d3.behavior.drag()
-                        .on("drag", dragmove);
 
                 // creates graph backdrop
                 svg
@@ -60,8 +61,14 @@ angular.module('indexApp').directive('boundary',
                     .attr("width", width)
                     .attr("height", height)
                     .attr('fill','#ddd')
+                    .attr('stroke','black')
                     .style("pointer-events", "all")
-                    .call(drag);
+                    ;
+
+
+                svg.append('g')
+                    .style("pointer-events", "all")
+                    .classed('boundaryBackground',true);
 
                 // creates the clipping rectangle
                 svg.append("clipPath")
@@ -115,6 +122,7 @@ angular.module('indexApp').directive('boundary',
                       .attr('y', selection.point1[1])
                       .attr('width', 0)
                       .attr('height',0);
+                      console.log('boundary graph clicked');
                   }
             })
             .on('mouseup',function(){
@@ -145,7 +153,6 @@ angular.module('indexApp').directive('boundary',
                     getConstLiers.update(rangex[0],rangex[1], rangey[0], rangey[1]);
                 }
 
-
             });
 
             //defines the drag movement
@@ -154,7 +161,7 @@ angular.module('indexApp').directive('boundary',
                 if(shiftDown){}
                 else{
                     var mousePoint= d3.mouse(this);
-                    // console.log(mousePoint);
+                    console.log(mousePoint);
                     mousePoint[0] = Math.max(0, Math.min(mousePoint[0], width));
                     mousePoint[1] = Math.max(0, Math.min(mousePoint[1], height));
                     // console.log(mousePoint);
@@ -175,6 +182,8 @@ angular.module('indexApp').directive('boundary',
                 createAxis();
                 // zoom.x(x).y(y);
                 // console.log('setting scales');
+                // console.log(x);
+                // console.log(y);
                 updateBoundaryGraph.setScales(x,y);
                 updateBoundaryGraph.update();
             }
@@ -201,18 +210,18 @@ angular.module('indexApp').directive('boundary',
                     .attr("class", "x label")
                     .attr("text-anchor", "end")
                     .attr("x", width - 6)
-                    .attr("y", height - 6)
-                    .text("k value  ");
+                    .attr("y", height + 30)
+                    .text("k value");
 
                 // Y axis label
                 svg.append("text")
                     .attr("class", "y label")
                     .attr("text-anchor", "end")
-                    .attr("y", 6)
-                    .attr("x", -4)
+                    .attr("y", -40)
+                    .attr("x", 0)
                     .attr("dy", ".75em")
                     .attr("transform", "rotate(-90)")
-                    .text("r value  ");
+                    .text("r value");
             // }
 
             // function zoomed() {

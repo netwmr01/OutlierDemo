@@ -1,4 +1,4 @@
-angular.module('indexApp').controller('boundaryCtrl',['$scope', '$window','updateBoundaryGraph', function($scope,$window,updateBoundaryGraph){
+angular.module('indexApp').controller('boundaryCtrl',['$scope', '$window','updateBoundaryGraph',function($scope,$window,updateBoundaryGraph){
 
 	/**zooms the boundary graph to the selected area 
 	 */
