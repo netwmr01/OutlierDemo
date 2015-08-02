@@ -8,6 +8,11 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 
+/**
+ * setup the resources folder mapping for the 
+ * @author Tommzy
+ *
+ */
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = { "controllers" })

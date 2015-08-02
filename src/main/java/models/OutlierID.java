@@ -1,5 +1,10 @@
 package models;
 
+/**
+ * OutlierID object model
+ * @author Tommzy
+ *
+ */
 public class OutlierID {
 	final int id;
 

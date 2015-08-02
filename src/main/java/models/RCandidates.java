@@ -1,5 +1,10 @@
 package models;
 
+/**
+ * This model is helping ksorted list to get id using a r
+ * @author Tommzy
+ *
+ */
 public class RCandidates {
 	public Double r;
 	public int id;

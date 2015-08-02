@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -28,16 +29,24 @@ public class MethodController {
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();
 
+	/**
+	 * Instantiate the ONION Engine:userStudy
+	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
+	 */
 	public MethodController(){
 		userStudy = new UserStudy();
 		idDataPlane=getIdDataPlane();
 	}
 	
 
+	/**
+	 * Shrink MapOutlierCandidate to OutlierID object 
+	 * @return
+	 */
 	public ArrayList<OutlierID> getIdDataPlane(){
 		ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();
 
-		Iterator ite = userStudy.getPoints().iterator();
+		Iterator<MapOutlierCandidate> ite = userStudy.getPoints().iterator();
 		while(ite.hasNext()){
 			MapOutlierCandidate oc = (MapOutlierCandidate) ite.next();
 			idDataPlane.add(new OutlierID(Integer.valueOf(((MapNode)(oc.getPoint())).getID())));
@@ -45,12 +54,13 @@ public class MethodController {
 		return idDataPlane;
 
 	}
-
-	//	@RequestMapping("/methods")
-	//	public Data greeting(@RequestParam(value="number", defaultValue="1") String number) {
-	//		return new Data(number);
-	//	}
-
+	
+	/**
+	 * Request for method1, user can input k r value pair to get the Outliers
+	 * @param k kvalue
+	 * @param r rvalue 
+	 * @return collection of OutlierID
+	 */
 	@RequestMapping("/method1")
 	public @ResponseBody Collection<OutlierID> getMethod1(@RequestParam(value="k") String k, @RequestParam(value="r") String r){
 		int intk=Integer.valueOf(k);
@@ -60,7 +70,7 @@ public class MethodController {
 		Collection<SortedCandidate> rawResult = userStudy.getMethod1(intk, doubler);
 		Collection<OutlierID> result = new ArrayList<OutlierID>(); 
 
-		Iterator ite = rawResult.iterator();
+		Iterator<SortedCandidate> ite = rawResult.iterator();
 		while(ite.hasNext()){
 			SortedCandidate data = (SortedCandidate) ite.next();
 			String id = (String)((MapNode) data.getPoint()).getID();
@@ -72,33 +82,21 @@ public class MethodController {
 		return result;
 	}
 
-	@RequestMapping("/method2")
-	public void getMethod2(@RequestParam(value="id") String id){
 
-	}
-
-	@RequestMapping("/method3")
-	public void getMethod3(){
-
-	}
-
-
-	//	@RequestMapping("/getDataPoints")
-	//	public @ResponseBody Set getDataPoints(){
-	//		Set dataPoints = new HashSet<MapOutlierCandidate>();
-	//
-	//		Iterator ite = userStudy.getPoints().iterator();
-	//		while(ite.hasNext()){
-	//			MapOutlierCandidate oc = (MapOutlierCandidate) ite.next();
-	//			dataPoints.add(oc.getPoint());
-	//		}
-	//		return dataPoints;
-	//	}
-
-
-
+	/**
+	 * This request will take an k r value range and return all 
+	 * constants Outlier and Inlier in a Arraylist
+	 * @param kmin 
+	 * @param kmax
+	 * @param rmin
+	 * @param rmax
+	 * @return ArrayList<Collection<OutlierID>> 
+	 * This returned data structure has two element, 
+	 * The first one is constantOutlier in an ArrayList<OutlierID>()
+	 * The second one is constantInlier in an ArrayList<OutlierID>()
+	 */
 	@RequestMapping("/getConstants")
-	public @ResponseBody ArrayList getOSpace(@RequestParam(value="kmin") String kmin, 
+	public @ResponseBody ArrayList<Collection<OutlierID>>  getOSpace(@RequestParam(value="kmin") String kmin, 
 			@RequestParam(value="kmax") String kmax,
 			@RequestParam(value="rmin") String rmin,
 			@RequestParam(value="rmax") String rmax){
@@ -118,8 +116,8 @@ public class MethodController {
 		ArrayList<OutlierID> minOutliers = new ArrayList<OutlierID>();
 		Collection<OutlierID> constantInlier = new ArrayList<OutlierID>();
 
-		Iterator iteCO = rawConstantOutlier.iterator();
-		Iterator iteCI = rawConstantInlier.iterator();
+		Iterator<SortedCandidate> iteCO = rawConstantOutlier.iterator();
+		Iterator<SortedCandidate> iteCI = rawConstantInlier.iterator();
 		while(iteCO.hasNext()){
 			SortedCandidate data = (SortedCandidate) iteCO.next();
 			String id = (String)((MapNode) data.getPoint()).getID();
@@ -155,8 +153,16 @@ public class MethodController {
 		return results;
 	}
 	
+	
+	/**
+	 * return the current outliers after the user choose the k r value range
+	 * AND pick up a k r value pair in the range rectangle 
+	 * @param kvalue
+	 * @param rvalue
+	 * @return ArrayList<Collection<OutlierID>>
+	 */
 	@RequestMapping("/getCurrentOutliers")
-	public @ResponseBody ArrayList getCurrentOutliers(@RequestParam(value="kvalue") String kvalue, 
+	public @ResponseBody ArrayList<Collection<OutlierID>> getCurrentOutliers(@RequestParam(value="kvalue") String kvalue, 
 			@RequestParam(value="rvalue") String rvalue){
 		int k=Integer.valueOf(kvalue);
 		int r=Integer.valueOf(rvalue);
@@ -166,7 +172,7 @@ public class MethodController {
 		Collection<OutlierID> currentOutliers = new ArrayList<OutlierID>();
 		Collection<OutlierID> currentInliers = new ArrayList<OutlierID>();
 
-		Iterator iteCCO = rawConstantOutlier.iterator();
+		Iterator<SortedCandidate> iteCCO = rawConstantOutlier.iterator();
 		
 		while(iteCCO.hasNext()){
 			SortedCandidate data = (SortedCandidate) iteCCO.next();
@@ -195,27 +201,36 @@ public class MethodController {
 		return results;
 	}
 	
+	/**
+	 * This request function will return ALL of the ksortedlist
+	 * 
+	 * @return ArrayList<KSList> an 10 element array start with 0
+	 *  
+	 */
 	@RequestMapping("/getKSortedList")
-	public @ResponseBody ArrayList getKSortedList(){
+	public @ResponseBody HashMap<String,ArrayList<RCandidates>> getKSortedList(){
 		
 		KSortedDataPlain kSortedDataPlain = userStudy.getKSortedList();
 		ArrayList<ArrayList<SortedCandidate>> rawdp = kSortedDataPlain.getEntireSpace();
-		
+		HashMap<String,ArrayList<RCandidates>> dp = new HashMap<String,ArrayList<RCandidates>>();
 		System.out.println("rawdp size: "+rawdp.size());
 		
-		Iterator ite = rawdp.iterator();
-		ArrayList<KSList> dp = new ArrayList<KSList>();
-		int counter = 0;
+		Iterator<ArrayList<SortedCandidate>> ite = rawdp.iterator();
+//		ArrayList<KSList> dp = new ArrayList<KSList>();
+		int counter = 1;
 		while(ite.hasNext()){
-			KSList kslist = new KSList(counter);
+			String key = "k"+counter;
+			System.out.println("key: "+ key);
+			ArrayList<RCandidates> rlist = new ArrayList<RCandidates>();
+			
 			ArrayList<SortedCandidate> sortedCandidateList=(ArrayList<SortedCandidate>) ite.next();
-			Iterator scite = sortedCandidateList.iterator();
+			Iterator<SortedCandidate> scite = sortedCandidateList.iterator();
 			while(scite.hasNext()){
 				SortedCandidate sc = (SortedCandidate) scite.next();
 				RCandidates rcandidates = new RCandidates(sc.r,Integer.valueOf(((MapNode)sc.getPoint()).getID()));
-				kslist.klist.add(rcandidates);
+				rlist.add(rcandidates);
 			}
-			dp.add(kslist);
+			dp.put(key, rlist);
 			counter++;
 		}
 		
@@ -223,8 +238,17 @@ public class MethodController {
 		
 	}
 	
+
+	/**
+	 * given a specific range of k r range, get an 
+	 * @param kmin
+	 * @param kmax
+	 * @param rmin
+	 * @param rmax
+	 * @return
+	 */
 	@RequestMapping("/getKSortedListRange")
-	public @ResponseBody ArrayList<KSList> getKSortedListRange(@RequestParam(value="kmin") String kmin, 
+	public @ResponseBody HashMap<String,ArrayList<RCandidates>> getKSortedListRange(@RequestParam(value="kmin") String kmin, 
 			@RequestParam(value="kmax") String kmax,
 			@RequestParam(value="rmin") String rmin,
 			@RequestParam(value="rmax") String rmax){
@@ -235,9 +259,10 @@ public class MethodController {
 		ArrayList<ArrayList<SortedCandidate>> rawdp = kSortedDataPlain.getEntireSpace();
 		
 		Iterator<ArrayList<SortedCandidate>> ite = rawdp.iterator();
-		ArrayList<KSList> dp = new ArrayList<KSList>();
-		int kcounter = 0;
+		HashMap<String,ArrayList<RCandidates>> dp = new HashMap<String,ArrayList<RCandidates>>();
+		int kcounter = 1;
 		while(ite.hasNext()){
+			//get the range of the k&r value
 			if(kcounter<Integer.valueOf(kmin) ){
 				kcounter++;
 				continue;
@@ -245,22 +270,24 @@ public class MethodController {
 				break;
 			}
 			System.out.println("getKSortedListRange Working !");
-			KSList kslist = new KSList(kcounter);
+			String key = "k"+kcounter;
+			System.out.println("key: "+ key);
+
+			ArrayList<RCandidates> rlist = new ArrayList<RCandidates>();
 			ArrayList<SortedCandidate> sortedCandidateList=(ArrayList<SortedCandidate>) ite.next();
-			Iterator scite = sortedCandidateList.iterator();
+			Iterator<SortedCandidate> scite = sortedCandidateList.iterator();
 			while(scite.hasNext()){
 				SortedCandidate sc = (SortedCandidate) scite.next();
-				if(sc.r<Double.valueOf(rmin)||sc.r>Double.valueOf(rmax)){
+				if(sc.r<Double.valueOf(rmin)){
 					continue;
+				}else if (sc.r>Double.valueOf(rmax)){
+					break;
 				}
 				RCandidates rcandidates = new RCandidates(sc.r,Integer.valueOf(((MapNode)sc.getPoint()).getID()));
-				kslist.klist.add(rcandidates);
+				rlist.add(rcandidates);
 			}
-			boolean success = dp.add(kslist);
-			System.out.println("Add success or not: "+success);
+			dp.put(key,rlist);
 			kcounter++;
-			
-			System.out.println("Looping");
 		}
 		
 		System.out.println("getKSortedListRange Finished!");

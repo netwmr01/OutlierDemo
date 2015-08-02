@@ -8,6 +8,12 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+/**
+ * Initialize the servicr settings
+ * 1. servelet mapping
+ * @author Tommzy
+ *
+ */
 public class WebAppInitializer implements WebApplicationInitializer {
 
 	@Override
