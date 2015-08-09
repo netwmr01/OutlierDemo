@@ -11,7 +11,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 /**
  * Initialize the servicr settings
  * 1. servelet mapping
- * @author Tommzy
+ * @author Hui Zheng
  *
  */
 public class WebAppInitializer implements WebApplicationInitializer {

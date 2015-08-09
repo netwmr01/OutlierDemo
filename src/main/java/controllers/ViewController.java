@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * View controller to handle request mapping for view change
- * @author Tommzy
+ * @author Hui Zheng
  *
  */
 @Controller

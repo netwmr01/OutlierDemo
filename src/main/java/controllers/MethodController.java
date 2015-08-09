@@ -22,12 +22,18 @@ import openmap.dsrg.cs.wpi.edu.MapNode;
 import openmap.dsrg.cs.wpi.edu.MapOutlierCandidate;
 import util.dsrg.cs.wpi.edu.SortedCandidate;
 
+/** get http request from front-end and return computed dataset
+ * @author Hui Zheng
+ *
+ */
 @RestController
 public class MethodController {
-	UserStudy userStudy;
-	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();
-	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();
-	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();
+	
+	UserStudy userStudy;//get the instance of the userStudy interface 
+	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
+	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
+	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
+	
 
 	/**
 	 * Instantiate the ONION Engine:userStudy
@@ -47,6 +53,7 @@ public class MethodController {
 		ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();
 
 		Iterator<MapOutlierCandidate> ite = userStudy.getPoints().iterator();
+		
 		while(ite.hasNext()){
 			MapOutlierCandidate oc = (MapOutlierCandidate) ite.next();
 			idDataPlane.add(new OutlierID(Integer.valueOf(((MapNode)(oc.getPoint())).getID())));
@@ -63,11 +70,15 @@ public class MethodController {
 	 */
 	@RequestMapping("/method1")
 	public @ResponseBody Collection<OutlierID> getMethod1(@RequestParam(value="k") String k, @RequestParam(value="r") String r){
+		//translate the k and r value from string to int and double
 		int intk=Integer.valueOf(k);
-		System.out.println(k);
+		System.out.println("K value getted"+k);
 		double doubler=Double.valueOf(r);
-		System.out.println(r);
+		System.out.println("R value getted"+r);
+		
+		//get the raw data from the ONION engine
 		Collection<SortedCandidate> rawResult = userStudy.getMethod1(intk, doubler);
+		//Instantiate another result set that only contains ID
 		Collection<OutlierID> result = new ArrayList<OutlierID>(); 
 
 		Iterator<SortedCandidate> ite = rawResult.iterator();
@@ -96,20 +107,27 @@ public class MethodController {
 	 * The second one is constantInlier in an ArrayList<OutlierID>()
 	 */
 	@RequestMapping("/getConstants")
-	public @ResponseBody ArrayList<Collection<OutlierID>>  getOSpace(@RequestParam(value="kmin") String kmin, 
+	public @ResponseBody ArrayList<Collection<OutlierID>> getOSpace(@RequestParam(value="kmin") String kmin, 
 			@RequestParam(value="kmax") String kmax,
 			@RequestParam(value="rmin") String rmin,
 			@RequestParam(value="rmax") String rmax){
 
-
+		
+		//translate the k and r values from string to int and double
 		int kMin=Integer.valueOf(kmin);
 		int kMax=Integer.valueOf(kmax);
 		double rMin=Double.valueOf(rmin);
 		double rMax=Double.valueOf(rmax);
 
+		//consule out the k & r value
 		System.out.println("K: "+kMin+"~"+kMax);
 		System.out.println("r: "+rMin+"~"+rMax);
+		
+		//get raw data of constant outlier
 		Collection<SortedCandidate> rawConstantOutlier = userStudy.getMethod1(kMin, rMax);
+		
+		//get raw data of constant inlier, 
+		//then get difference of the outlier with the whole data plane
 		Collection<SortedCandidate> rawConstantInlier = userStudy.getMethod1(kMax, rMin);
 
 		Collection<OutlierID> constantOutlier = new ArrayList<OutlierID>();
@@ -167,6 +185,7 @@ public class MethodController {
 		int k=Integer.valueOf(kvalue);
 		int r=Integer.valueOf(rvalue);
 		
+		//get raw data
 		Collection<SortedCandidate> rawConstantOutlier = userStudy.getMethod1(k, r);
 
 		Collection<OutlierID> currentOutliers = new ArrayList<OutlierID>();
@@ -174,6 +193,9 @@ public class MethodController {
 
 		Iterator<SortedCandidate> iteCCO = rawConstantOutlier.iterator();
 		
+		//iterate the data set and find it contains in constant outlier hashset or not
+		//to determine whether it contains of this element is current outlier or not
+		//time complicity O(n)
 		while(iteCCO.hasNext()){
 			SortedCandidate data = (SortedCandidate) iteCCO.next();
 			int id = Integer.valueOf((String)((MapNode) data.getPoint()).getID());
@@ -210,13 +232,13 @@ public class MethodController {
 	@RequestMapping("/getKSortedList")
 	public @ResponseBody HashMap<String,ArrayList<RCandidates>> getKSortedList(){
 		
+		//get raw data
 		KSortedDataPlain kSortedDataPlain = userStudy.getKSortedList();
 		ArrayList<ArrayList<SortedCandidate>> rawdp = kSortedDataPlain.getEntireSpace();
 		HashMap<String,ArrayList<RCandidates>> dp = new HashMap<String,ArrayList<RCandidates>>();
 		System.out.println("rawdp size: "+rawdp.size());
 		
 		Iterator<ArrayList<SortedCandidate>> ite = rawdp.iterator();
-//		ArrayList<KSList> dp = new ArrayList<KSList>();
 		int counter = 1;
 		while(ite.hasNext()){
 			String key = "k"+counter;

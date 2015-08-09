@@ -50,38 +50,21 @@
     </div>
 </nav>
 
-<div class="container-fluid" >
-    <div class="col-md-6">
-        <div  ng-controller="TabCtrl">
-            <tabset class="tabs" >
-                <tab heading="OD" ng-controller="sliderCtrl">
-                    <div>
-                        <form class="row-fluid" ng-submit="updateKRValue()" >
-                            <p>K Value: </p>
-                            {{kvalue}}
-                            <input name="kvaluerange" ng-init="updateKRValue()" type="range" min="1" max="10" ng-model="kvalue" ng-mouseup="updateKRValue()"></input>
-                            <input type="number" min="0" max="10" class="string-to-number" ng-model="kvalue"></input>
-                            <p>R Value: </p>
-                            {{rvalue}}
-                            <input  name="rvaluerange" type="range" min="1" max="10000" ng-model="rvalue" ng-mouseup="updateKRValue()"></input>
-                            <input type="number" min="0" max="10000" class="string-to-number" ng-model="rvalue" ></input>
-                            <br></br>
-                            <p></p>
-                            <button type="submit" class="btn btn-primary"> Update</button>
-                        </form>
-                    </div>
-                </tab>
-                <tab heading="PSE" ng-controller="boundaryCtrl">
-                    <boundary></boundary>
-                </tab>
-                <tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" disable="tab.disabled">
-                    {{tab.content}}
+<div class="container-fluid" id="content">
+    <div class="col-md-6" id="leftPane">
+        <div class="jumbotron" ng-controller="TabCtrl">
+            <tabset>
+                <tab ng-repeat="pane in panes" heading="{{pane.title}}" popover="{{pane.long_name}}"
+                     popover-trigger="mouseenter" active="pane.active">
+                    {{active()}}
+                    <tab-heading>{{pane.title}}</tab-heading>
+                    <div ng-include="pane.content"></div>
                 </tab>
             </tabset>
         </div>
     </div>
     <div class="col-md-6">
-        <div>
+        <div class="jumbotron left-pane">
             <tabset class="tabs"  ng-controller="datasetCtrl">
                 <tab heading="Data Set">
                     <dataplane></dataplane>
@@ -90,18 +73,6 @@
         </div>
     </div>
 </div>
-<!--<div class="row">-->
-<!--<div class="col-md-4">-->
-<!--<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>-->
-<!--</div>-->
-<!--<div class="col-md-4">-->
-<!--<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>-->
-<!--</div>-->
-<!--<div class="col-md-4">-->
-<!--<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>-->
-<!--</div>-->
-<!--<div class="clearfix visible-lg"></div>-->
-<!--</div>-->
 
 
 </body>

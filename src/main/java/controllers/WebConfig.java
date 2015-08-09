@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 /**
  * setup the resources folder mapping for the 
- * @author Tommzy
+ * @author Hui Zheng
  *
  */
 @Configuration
