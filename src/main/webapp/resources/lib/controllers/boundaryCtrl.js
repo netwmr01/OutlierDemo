@@ -1,14 +1,29 @@
-angular.module('indexApp').controller('boundaryCtrl',['$scope', '$window','updateBoundaryGraph',function($scope,$window,updateBoundaryGraph){
+angular.module('indexApp').controller('boundaryCtrl',
+    ['$scope', '$window','updateBoundaryGraph', 'densityMatrix', function($scope,$window,updateBoundaryGraph, densityMatrix){
 
 	/**zooms the boundary graph to the selected area 
 	 */
     $scope.zoom = function(){
-        console.log('ZOOM');
+
+        var scales= updateBoundaryGraph.getScales();
+        var boundaryX=scales.x;
+        var boundaryY=scales.y;
+
+        // console.log(scales);
+
+        // console.log('ZOOM');
         var selectionRect = d3.selectAll('.selectionRect');
         var minx = Number(selectionRect.attr('x'));
         var miny = Number(selectionRect.attr('y'));
         var maxx = Number(minx) + Number(selectionRect.attr('width'));
         var maxy = Number(miny) + Number(selectionRect.attr('height'));
+
+        selectionRect
+            .attr('x',0)
+            .attr('y',0)
+            .attr('width',0)
+            .attr('height',0);
+
         console.log([minx,miny,maxx,maxy]);
 
         minx = Math.round(boundaryX.invert(minx));
@@ -20,11 +35,37 @@ angular.module('indexApp').controller('boundaryCtrl',['$scope', '$window','updat
         maxy=x;
         console.log([minx,maxx,miny,maxy]);
 
-        // boundaryX.domain([minx,maxx]);
-        // boundaryY.domain([miny,maxy]);
+        boundaryX.domain([minx,maxx]);
+        boundaryY.domain([miny,maxy]);
+
+        updateBoundaryGraph.setScales(boundaryX,boundaryY);
+
+        densityMatrix.createDensityMatrix([minx,maxx,miny,maxy]);
 
         // svg.select(".x.axis").call(xAxis);
         // svg.select(".y.axis").call(yAxis);
+    };
+
+    // resets the zoom in the boundary graph
+    $scope.resetZoom = function(){
+        var domain = updateBoundaryGraph.getDefaultDomain();
+        var scales= updateBoundaryGraph.getScales();
+
+        var boundaryX=scales.x.domain(domain.x);
+        var boundaryY=scales.y.domain(domain.y);
+
+        updateBoundaryGraph.setScales(boundaryX,boundaryY);
+
+        densityMatrix();
+    };
+
+    $scope.resetBoundaries = function(){
+        console.log('hi');
+        d3.selectAll('.selected')
+            .classed('selected',false)
+            .classed('deselected',true);
+
+        updateBoundaryGraph.update();
     };
 
     /** resets the selection in the boundary graph
@@ -45,6 +86,7 @@ angular.module('indexApp').controller('boundaryCtrl',['$scope', '$window','updat
      * @param  {object} args - aruments passed by event
      */
     function drawBoundaries(event, args){
+        console.log('drawingBoundaries');
     	var line = args.line;
     	var domain = args.domain;
     	var colors = args.colors;
@@ -81,6 +123,17 @@ angular.module('indexApp').controller('boundaryCtrl',['$scope', '$window','updat
 	        .attr("clip-path", "url(#clip2)")
 	        .attr("d", line);
     }
+
+    $scope.toggleBackground = function(){
+        console.log('hello');
+
+        var densityRectangles = d3.select('.boundaryBackground');
+        densityRectangles.attr('opacity',(1-densityRectangles.attr('opacity')));
+
+        // var  rectangles=d3.selectAll('.densityRectangle');
+        // rectangles.classed('visible',!rectangles.classed('visible'));
+        console.log('done');
+    };
 
     // listens for the updateBoundary event in $scope
     $scope.$on('updateBoundary', drawBoundaries);

@@ -1,4 +1,5 @@
-angular.module('indexApp').factory('updateKR',['$http','$rootScope', function($http,$rootScope){
+angular.module('indexApp').factory('updateKR',
+    ['$http','$rootScope', function($http,$rootScope){
 
 	kvalue=5;
     rvalue=5000;

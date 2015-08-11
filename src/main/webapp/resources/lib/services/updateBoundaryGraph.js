@@ -1,25 +1,15 @@
-angular.module('indexApp').factory('updateBoundaryGraph', ['$rootScope', function($rootScope){
+angular.module('indexApp').factory('updateBoundaryGraph', 
+    ['$rootScope', function($rootScope){
+        
 	var domain = [];
     for(var i = 0; i<20; i++)domain.push('');
     var colors = d3.scale.category20().range();
 
     //clears the svg canvas
-    var boundaryX,boundaryY;
-    
-    return{
-    	// sets the x and y scales for the boundary graph to the inputs x and y
-    	setScales : function(x,y){
-    		boundaryX = x;
-    		boundaryY = y;
-    	},
+    var defaultX,defaultY;
+    var boundaryX,boundaryY,boundarySet=false;
 
-    	getScales :function(){
-    		return {x:boundaryX, y:boundaryY};
-    	},
-
-
-    	// sets up the boundaryPoints array and broadcasts the updateBoundary event on the root scope
-    	update: function(){
+     function update(){
 		    var boundaryGraph =d3.select('.boundaryGraph');
 	        var selectedPoints = d3.selectAll('.selected');
 	        var boundaryPoints = [];
@@ -51,10 +41,41 @@ angular.module('indexApp').factory('updateBoundaryGraph', ['$rootScope', functio
 	            // broadcasts the updateBoundary event
                 $rootScope.$broadcast('updateBoundary', {line:line,domain:domain, colors:colors, boundaryPoints:boundaryPoints});
 
-	            console.log(domain); 
+	            // console.log(domain); 
 	            console.log('printed: ' +selectedPoints.size() +' points');
 	        }
+	        $rootScope.$broadcast('updateDeselected',{domain:domain});
+    	}
+    
+    return{
+    	// sets the x and y scales for the boundary graph to the inputs x and y
+    	setScales : function(x,y){
+    		console.log('scales set');
+    		boundaryX = x;
+    		boundaryY = y;
+    		if(!boundarySet){
+    			console.log([boundaryX,boundaryY]);
+    			defaultX = boundaryX.domain();
+    			defaultY = boundaryY.domain();
+    		}
+    		boundarySet=true;
+			
+			$rootScope.$broadcast('updatedBoundaryScales'); // update axis, upgradebackground
+
+			update();
     	},
+
+    	getScales :function(){
+    		return {boundarySet:boundarySet,x:boundaryX, y:boundaryY};
+    	},
+
+    	getDefaultDomain : function(){
+    		return {x:defaultX, y:defaultY};
+    	},
+
+
+    	// sets up the boundaryPoints array and broadcasts the updateBoundary event on the root scope
+    	update:update,
 
     	/**
     	 * @param {array} newDomain - the domain to use

@@ -55,7 +55,7 @@ angular.module('indexApp').factory('getConstLiers',['$http', function($http){
 	            var constIn=textConstData[1];
 
 	            //reset current constant outliers
-	            d3.select('.constOut')
+	            d3.select('.dataPoint.constOut')
 	                .classed('constOut',false);
 
 	            // console.log(constOut);
@@ -75,7 +75,7 @@ angular.module('indexApp').factory('getConstLiers',['$http', function($http){
 	            console.log('starting constant inlier');
 	            console.log(constIn.length);
 
-	            d3.select('.constIn')
+	            d3.select('.dataPoint.constIn')
 	                .classed('constIn',false);
 
                 // sets const in

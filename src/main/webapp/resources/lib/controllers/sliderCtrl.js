@@ -1,4 +1,5 @@
-angular.module('indexApp').controller('sliderCtrl',['$scope', '$http', 'updateKR', function($scope,$http, updateKR){
+angular.module('indexApp').controller('sliderCtrl',
+    ['$scope', '$http', 'updateKR', function($scope,$http, updateKR){
 
     $scope.kvalue=5;
     $scope.rvalue=5000;

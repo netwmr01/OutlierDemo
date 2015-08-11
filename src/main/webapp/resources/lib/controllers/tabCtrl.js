@@ -1,4 +1,6 @@
-angular.module('indexApp').controller('TabCtrl',['$scope', '$window', function($scope,$window){
+angular.module('indexApp').controller('TabCtrl',
+    ['$scope', '$window', function($scope,$window){
+    
     // sets up tabs that are under development
     $scope.panes = [
         { title:'OD', long_name:'Outlier Detection', short_name:'OD', content:'resources/lib/templates/OutlierDetection.html' },

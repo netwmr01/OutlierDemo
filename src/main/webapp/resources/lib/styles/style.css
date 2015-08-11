@@ -1,0 +1,65 @@
+html,body {
+    font-size: 15px;
+    font-family: 'Roboto', Arial, sans-serif;
+    height:100%;
+}
+
+.full{
+	height:100%;
+}
+
+@media screen  {.jumbotron{
+    height:calc(100% - 20px);
+    padding: 0 30px 0 30px;
+    margin-bottom: 20px
+}}
+
+#content{
+    height: calc(100% - 71px);
+}
+
+#leftPane{
+    float:left;
+    height:100%;
+}
+
+#rightPane{
+    float:right;
+    height:100%;
+}
+
+#sliders{
+    background-color:DarkGray;
+    padding: 10px;
+    margin-top: 5px;    
+}
+
+.paneContent{
+    height: calc(100% - 20px);
+    background-color:gray;
+    border-radius: 1em;
+    padding: 0 15px 0 15px;
+}
+
+.paneContent>.tabs, .tab-pane{
+    height:100%;
+}
+
+.tab-content{
+    height: calc(100% - 42px);
+}
+
+.container-fluid{
+    height: 100%;
+}
+
+.pane{
+    height: 100%;
+}
+
+.jumbotron{
+    height: 100%;
+}
+li>a{
+    color:black ;
+}

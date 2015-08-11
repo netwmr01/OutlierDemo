@@ -5,7 +5,8 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" href="resources/lib/vendor/bootstrap.min.css"></link>
-    <link rel="stylesheet" type="text/css" href="resources/lib/style.css"></link>
+    <link rel="stylesheet" type="text/css" href="resources/lib/styles/style.css"></link>
+    <link rel="stylesheet" type="text/css" href="resources/lib/styles/graphs.css"></link>
     <script src="resources/lib/vendor/angular.js"></script>
     <script src="resources/lib/app.js"></script>
     <!---controllers -->
@@ -17,6 +18,7 @@
     <script src="resources/lib/directives/boundary.js"></script>
     <script src="resources/lib/directives/dataplane.js"></script>
     <script src="resources/lib/directives/stringToNumber.js"></script>
+    <script src="resources/lib/directives/legend.js"></script>
     <!---services -->
     <script src="resources/lib/services/updateBoundaryGraph.js"></script>
     <script src="resources/lib/services/getConstLiers.js"></script>
@@ -25,11 +27,10 @@
     <script src="resources/lib/vendor/ui-bootstrap-tpls-0.13.1.js"></script>
     <script src="resources/lib/vendor/colorbrewer.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
-    <!--<script src="resources/lib/d3functions.js"></script>-->
 </head>
 <body>
 
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-inverse navbar-static-top">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
@@ -49,31 +50,29 @@
         </div>
     </div>
 </nav>
-
 <div class="container-fluid" id="content">
-    <div class="col-md-6" id="leftPane">
-        <div class="jumbotron" ng-controller="TabCtrl">
-            <tabset>
-                <tab ng-repeat="pane in panes" heading="{{pane.title}}" popover="{{pane.long_name}}"
+    <div class="col-md-6 left pane" id="leftPane">
+        <div class="left paneContent" ng-controller="TabCtrl">
+            <tabset class="tabs">
+                <tab ng-repeat="pane in panes" class="full  " heading="{{pane.title}}" popover="{{pane.long_name}}"
                      popover-trigger="mouseenter" active="pane.active">
                     {{active()}}
                     <tab-heading>{{pane.title}}</tab-heading>
-                    <div ng-include="pane.content"></div>
+                    <div ng-include="pane.content" class="full"></div>
                 </tab>
             </tabset>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="jumbotron left-pane">
-            <tabset class="tabs"  ng-controller="datasetCtrl">
-                <tab heading="Data Set">
+    <div class="col-md-6 right pane col" id="rightPane">
+        <div class="right paneContent">
+            <tabset class="tabs">
+                <tab heading="Data Plane" ng-controller="datasetCtrl">
                     <dataplane></dataplane>
+                    <legend></legend>
                 </tab>
             </tabset>
         </div>
     </div>
 </div>
-
-
 </body>
 </html>
