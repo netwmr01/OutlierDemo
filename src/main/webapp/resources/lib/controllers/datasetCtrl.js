@@ -6,7 +6,7 @@ angular.module('indexApp').controller('datasetCtrl',
 		var data= args.data;
 
         //reset current outliers
-        d3.selectAll('.outlier')
+        d3.selectAll('.dataPoint.outlier')
             .classed('outlier', false);
         //mark outliers
         data.forEach(function(element){
