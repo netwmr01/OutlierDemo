@@ -20,11 +20,13 @@ import models.OutlierID;
 import models.RCandidates;
 import openmap.dsrg.cs.wpi.edu.MapNode;
 import openmap.dsrg.cs.wpi.edu.MapOutlierCandidate;
+import util.dsrg.cs.wpi.edu.DominationManager;
+import util.dsrg.cs.wpi.edu.GetVertexCover;
 import util.dsrg.cs.wpi.edu.SortedCandidate;
 
 /** get http request from front-end and return computed dataset
  * @author Hui Zheng
- *
+ * 
  */
 @RestController
 public class MethodController {
@@ -77,7 +79,7 @@ public class MethodController {
 		System.out.println("R value getted"+r);
 		
 		//get the raw data from the ONION engine
-		Collection<SortedCandidate> rawResult = userStudy.getMethod1(intk, doubler);
+		Collection<SortedCandidate> rawResult = UserStudy.getMethod1(intk, doubler);
 		//Instantiate another result set that only contains ID
 		Collection<OutlierID> result = new ArrayList<OutlierID>(); 
 
@@ -124,11 +126,11 @@ public class MethodController {
 		System.out.println("r: "+rMin+"~"+rMax);
 		
 		//get raw data of constant outlier
-		Collection<SortedCandidate> rawConstantOutlier = userStudy.getMethod1(kMin, rMax);
+		Collection<SortedCandidate> rawConstantOutlier = UserStudy.getMethod1(kMin, rMax);
 		
 		//get raw data of constant inlier, 
 		//then get difference of the outlier with the whole data plane
-		Collection<SortedCandidate> rawConstantInlier = userStudy.getMethod1(kMax, rMin);
+		Collection<SortedCandidate> rawConstantInlier = UserStudy.getMethod1(kMax, rMin);
 
 		Collection<OutlierID> constantOutlier = new ArrayList<OutlierID>();
 		ArrayList<OutlierID> minOutliers = new ArrayList<OutlierID>();
@@ -186,7 +188,7 @@ public class MethodController {
 		int r=Integer.valueOf(rvalue);
 		
 		//get raw data
-		Collection<SortedCandidate> rawConstantOutlier = userStudy.getMethod1(k, r);
+		Collection<SortedCandidate> rawConstantOutlier = UserStudy.getMethod1(k, r);
 
 		Collection<OutlierID> currentOutliers = new ArrayList<OutlierID>();
 		Collection<OutlierID> currentInliers = new ArrayList<OutlierID>();
@@ -316,6 +318,58 @@ public class MethodController {
 		
 		return dp;
 		
+	}
+	
+	
+	@RequestMapping("/getDominationGroups")
+	public @ResponseBody ArrayList<HashMap<String,ArrayList<Integer>>> getDominationGroups(){
+		String dataFile = "ocMitreDemo.txt";
+		
+		ArrayList<HashMap<String,ArrayList<Integer>>> result = new ArrayList<HashMap<String,ArrayList<Integer>>>();
+		
+		DominationManager dm=null;
+		try{
+			dm = DominationManager.getInstance();
+			
+		}catch(Exception e){
+			System.out.println(e);
+		}
+		
+		
+		int i;
+		for (i=1;i<=3;i++){
+			List set = null;
+			String lable = "Group"+i;
+			ArrayList<Integer> list = new ArrayList<Integer>(); 
+			try {
+				switch(i){
+					case 1: 
+						set = dm.getGroup1();
+						break;
+					case 2:
+						set = dm.getGroup2();
+						break;
+					case 3:
+						set = dm.getGroup3();
+						break;
+				}
+				
+				Iterator ite =set.iterator();
+				while(ite.hasNext()){
+					MapOutlierCandidate moc= (MapOutlierCandidate) ite.next();
+					list.add(Integer.valueOf(((MapNode) moc.getPoint()).getID()));
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			HashMap<String,ArrayList<Integer>> hashMap= new HashMap<String,ArrayList<Integer>>();
+			hashMap.put(lable, list);
+			result.add(hashMap);
+		}
+		
+		return result;
 	}
 	
 	

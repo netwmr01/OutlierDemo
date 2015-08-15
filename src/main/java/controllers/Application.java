@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Contains the main function that will make 
  * the java web application works
  * @author Hui Zheng
- *
+ * 
  */
 @SpringBootApplication
 public class Application {
