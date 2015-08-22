@@ -12,49 +12,6 @@ angular.module('indexApp').factory('getConstLiers',['$http', function($http){
 	            var constOut =textConstData[0];
 	            var constIn=textConstData[1];
 	            //reset current constant outliers
-	            d3.select('.constOut')
-	                .classed('constOut',false);
-
-	            // console.log(constOut);
-	            console.log('starting constant outlier');
-
-	            // sets const out
-	            constOut.forEach(function(element){
-	                var sPoint = d3.selectAll('#id'+element.id.toString());
-	                // console.log(sPoint);
-	                if(sPoint){
-	                    // console.log(sPoint.data()[0].point.id);
-	                    sPoint.classed('constOut', true);
-	                    // console.log(sPoint.classed('constOut'));
-	                }
-	            });
-
-	            console.log('starting constant inlier');
-	            console.log(constIn.length);
-
-	            // reset constIn
-	            d3.select('.constIn')
-	                .classed('constIn',false);
-
-                // sets constIn
-	            constIn.forEach(function(element){
-	                var sPoint = d3.selectAll('#id'+element.id.toString());
-	                if(sPoint){
-	                    // console.log(sPoint.data()[0].point.id);
-	                    sPoint.classed('constIn', true);
-	                    // console.log(sPoint.classed('constIn'));
-	                }
-	            });
-
-	            console.log('Finished Constant Liers');
-	        })
-	        .error(function(data){
-                console.log("Fail getting constant liers data");
-
-	            var constOut =textConstData[0];
-	            var constIn=textConstData[1];
-
-	            //reset current constant outliers
 	            d3.select('.dataPoint.constOut')
 	                .classed('constOut',false);
 
@@ -73,12 +30,13 @@ angular.module('indexApp').factory('getConstLiers',['$http', function($http){
 	            });
 
 	            console.log('starting constant inlier');
-	            console.log(constIn.length);
+	            // console.log(constIn.length);
 
+	            // reset constIn
 	            d3.select('.dataPoint.constIn')
 	                .classed('constIn',false);
 
-                // sets const in
+                // sets constIn
 	            constIn.forEach(function(element){
 	                var sPoint = d3.selectAll('#id'+element.id.toString());
 	                if(sPoint){
@@ -89,8 +47,10 @@ angular.module('indexApp').factory('getConstLiers',['$http', function($http){
 	            });
 
 	            console.log('Finished Constant Liers');
-
-	        });
-	    }
-    };
+	        })
+	        .error(function(data){
+                console.log("Fail getting constant liers data");
+	    	});
+ 	   	}
+	}
 }]);

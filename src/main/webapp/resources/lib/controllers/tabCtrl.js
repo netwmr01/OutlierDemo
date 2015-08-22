@@ -8,6 +8,7 @@ angular.module('indexApp').controller('TabCtrl',
         { title:'COA', long_name:'Comparative Outlier Analysis', short_name:'COA', content:'resources/lib/templates/ComparativeOutlierAnalysis.html' }
     ];
 
+    // returns the tab pane that is active
     $scope.active = function() {
         var panes = $scope.panes;
         panes.forEach(function(pane){

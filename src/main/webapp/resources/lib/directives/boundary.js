@@ -1,6 +1,6 @@
 angular.module('indexApp').directive('boundary', 
-    ['$window', 'updateBoundaryGraph', 'getConstLiers', 'updateKR', 'densityMatrix',
-    function($window,updateBoundaryGraph, getConstLiers, updateKR,densityMatrix){
+    ['$window', 'updateBoundaryGraph', 'getConstLiers', 'updateKR',
+    function($window,updateBoundaryGraph, getConstLiers, updateKR){
     return{
         restrict:'E',
         link: link,
@@ -47,8 +47,31 @@ angular.module('indexApp').directive('boundary',
             //     .scaleExtent([1,10])
             //     .on("zoom", zoomed);
 
+            //creates drag object
             var drag = d3.behavior.drag()
                 .on("drag", dragmove);
+
+            //defines the drag behaviour
+            function dragmove(d){
+                // console.log(shiftDown);
+                if(shiftDown){}
+                else{
+                    var mousePoint= d3.mouse(this);
+                    // console.log(mousePoint);
+                    mousePoint[0] = Math.max(0, Math.min(mousePoint[0], width));
+                    mousePoint[1] = Math.max(0, Math.min(mousePoint[1], height));
+                    // console.log(mousePoint);
+                    selection.point2=mousePoint;
+
+                    selectionRect
+                        .attr('x', d3.min([selection.point1[0],selection.point2[0]]))
+                        .attr('y', d3.min([selection.point1[1],selection.point2[1]]))
+                        .attr('width', Math.abs((selection.point2[0]-selection.point1[0])))
+                        .attr('height',Math.abs((selection.point2[1]-selection.point1[1])));
+
+                    // console.log(selection);
+                }
+            }
 
             // Adds the svg canvas
             svg = d3.select(element[0])
@@ -126,8 +149,6 @@ angular.module('indexApp').directive('boundary',
             .call(xAxis);
            d3.select('.boundary.y.axis')
             .call(yAxis);
-
-            densityMatrix.createDensityMatrix();
         });
 
         // creates interations with the boundary canvas
@@ -138,12 +159,14 @@ angular.module('indexApp').directive('boundary',
             // console.log(shiftDown);
             if(shiftDown){
             }else{
+                //gets the location of the mouse when clicked
                 var mousePoint= d3.mouse(this);
                 mousePoint[0] = Math.max(0, Math.min(mousePoint[0], width));
                 mousePoint[1] = Math.max(0, Math.min(mousePoint[1], height));
                 selection.point1 =selection.point2=mousePoint;
                 console.log(mousePoint);
 
+                // sets starting point of selection rect
                 selectionRect
                   .attr("x", selection.point1[0])
                   .attr('y', selection.point1[1])
@@ -154,6 +177,7 @@ angular.module('indexApp').directive('boundary',
         })
         .on('mouseup',function(){
             if(shiftDown){
+                // sets the kr values
                 var mousePoint= d3.mouse(this);
                 var k = Math.round(x.invert(mousePoint[0]));
                 var r = Math.round(y.invert(mousePoint[1]));
@@ -164,45 +188,27 @@ angular.module('indexApp').directive('boundary',
                 updateKR.setKR(k,r);
 
             }else{
+                // sorts the x and y boundaries
                 var rangex =d3.extent([selection.point1[0],selection.point2[0]]).map(x.invert);
                 var rangey =d3.extent([selection.point1[1],selection.point2[1]]).map(y.invert);
 
+                // flips and rouonds the y boundaries
                 var temp = Math.round(rangey[0]);
                 rangey[0] = Math.round(rangey[1]);
                 rangey[1] = temp;
 
+                // roundsa the x boundaries
                 rangex[0] = Math.round(rangex[0]);
                 rangex[1] = Math.round(rangex[1]);
 
-                //replace with actuall call
-                // console.log('[minx,maxx,miny,maxy]');
-                console.log([rangex[0],rangex[1], rangey[0], rangey[1]]);
+                // updates the constant liers
+                // console.log([rangex[0],rangex[1], rangey[0], rangey[1]]);
                 getConstLiers.update(rangex[0],rangex[1], rangey[0], rangey[1]);
             }
 
         });
 
-        //defines the drag movement
-        function dragmove(d){
-            // console.log(shiftDown);
-            if(shiftDown){}
-            else{
-                var mousePoint= d3.mouse(this);
-                // console.log(mousePoint);
-                mousePoint[0] = Math.max(0, Math.min(mousePoint[0], width));
-                mousePoint[1] = Math.max(0, Math.min(mousePoint[1], height));
-                // console.log(mousePoint);
-                selection.point2=mousePoint;
-
-                selectionRect
-                    .attr('x', d3.min([selection.point1[0],selection.point2[0]]))
-                    .attr('y', d3.min([selection.point1[1],selection.point2[1]]))
-                    .attr('width', Math.abs((selection.point2[0]-selection.point1[0])))
-                    .attr('height',Math.abs((selection.point2[1]-selection.point1[1])));
-
-                // console.log(selection);
-            }
-        }
+        
 
         // creates axis, sets the scalese in updateBoundary service, and updates the boundaryGraph 
         function plotGraph(){
@@ -248,24 +254,6 @@ angular.module('indexApp').directive('boundary',
                 .attr("dy", ".75em")
                 .attr("transform", "rotate(-90)")
                 .text("r value");
-        // }
-
-        // function zoomed() {
-        //     var t = d3.event.translate,
-        //         s = d3.event.scale;
-        //     t[0] = Math.max(-width*(s-1), Math.min(t[0], 0));
-        //     t[1] = Math.max(-height*(s-1), Math.min(t[1], 0));
-
-        //     zoom.translate(t);
-
-
-        //     svg.select(".x.axis").call(xAxis);
-        //     svg.select(".y.axis").call(yAxis);
-
-        //     updateBoundaryGraph();
-
-        //     console.log(zoom.translate());
-        // }
 
         }
     }

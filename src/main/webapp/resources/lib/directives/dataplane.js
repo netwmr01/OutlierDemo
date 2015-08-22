@@ -17,12 +17,7 @@ angular.module('indexApp').directive('dataplane',
             width = paneDimensions.width - margin.left - margin.right,
             height = paneDimensions.height- 42 - margin.top - margin.bottom;
             // console.log(paneDimensions);
-        /*
-         * value accessor - returns the value to encode for a given data object.
-         * scale - maps value to a visual display encoding, such as a pixel position.
-         * map function - maps from data value to display value
-         * axis - sets up axis
-         */
+        
         // setup x
             var xValue = function(d) { return d.point.lat;}, // data -> value
             xScale = d3.scale.linear().range([0, width]), // value -> display
@@ -168,6 +163,7 @@ angular.module('indexApp').directive('dataplane',
                 .attr("clip-path", "url(#clip)")
                 .attr('id', function(d){return 'id'+d.point.id; })
                 .on("mouseover", function(d) {
+                    //moves tool tip and makes it visible
                     tooltip.transition()
                         .duration(200)
                         .style("opacity", 1.4);
@@ -176,13 +172,14 @@ angular.module('indexApp').directive('dataplane',
                         .style("left", (d3.event.layerX + 5) + "px")
                         .style("top", (d3.event.layerY - 28) + "px");
                 })
-                // creates point selection functionality
                 .on("mouseout", function(d) {
+                    // makes tooltip transparrent
                     tooltip.transition()
                         .duration(500)
                         .style("opacity", 0);
                 })
                 .on('click', function(d){
+                    // selects the point to be shown on boundary graph
                     var clickedPoint = d3.select(this);
                     var currentlySelected =clickedPoint.classed('selected');
 

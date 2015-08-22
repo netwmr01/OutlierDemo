@@ -28,20 +28,25 @@ angular.module('indexApp').factory('densityMatrix',
 		// console.log(maxGraphR);
 		var rValues;
 		if(args){
+//			console.log("smaller density matrix")
+			console.log(args);
 			$http.get('http://localhost:8080/getKSortedListRange?kmin='+
-                       args[0][0]+'&kmax='+args[0][1]+'&rmin='+args[1][0]+'&rmax='+args[0][0])
+                       (args[0]+1)+'&kmax='+args[1]+'&rmin='+args[2]+'&rmax='+args[3])
 			.success(function(data){
+					// console.log(data);
+					
+					// console.log(scales.x.range());
+					// console.log(scales.y.range());
+				
 				rValues = parseDensityData(data);
+				// console.log(rValues);
 				drawAreas(rValues);
 			})
-			.error(d3.json("resources/lib/sampleJSONs/krvalue_whole_plane_json_sample.json", function(error, data) {
-				if (error) return console.warn(error);
-				rValues = parseDensityData(data);
-				// drawAreas(rValues);
-				// console.log(data);
-				// console.log('rValues:');
-				// console.log(rValues);
-			}));			
+			.error(
+				function(){
+					console.log("Error retreiving zoomed k sorted list");
+				}
+			);			
 
 		}
 		else{
@@ -51,21 +56,17 @@ angular.module('indexApp').factory('densityMatrix',
 				drawAreas(rValues);
         	})
         	.error(
-	        d3.json("resources/lib/sampleJSONs/krvalue_whole_plane_json_sample.json", function(error, data) {
-				if (error) return console.warn(error);
-				rValues = parseDensityData(data);
-				drawAreas(rValues);
-				// console.log(data);
-				// console.log('rValues:');
-				// console.log(rValues);					
-			}));
-			}
+        		function(){
+        			console.log("Error retriving k sorted List");
+        		}					
+			);
+		}
 	}
 
 	function parseDensityData(data){
 		var rValues = {};
 		// console.log('JSON kSortedList');
-		// console.log(data);
+		console.log(data);
 		for(var key in data){
 			var kValue = key.slice(1)-1;
 			var rValuesTemp=[];
@@ -93,8 +94,11 @@ angular.module('indexApp').factory('densityMatrix',
 	function drawAreas(rValues){
 		console.log('drawing Boundary areas');
 		svg = d3.select('.boundaryBackground');
+		svg.selectAll(".densityRectangle").remove();
 
+		
 		for (var key in rValues){
+			console.log(key);
 			kSortedList = rValues[key];
 			k = key.slice(1)-1;
 			// console.log(k);
@@ -104,34 +108,22 @@ angular.module('indexApp').factory('densityMatrix',
 			kSortedList.reverse().forEach(drawSingleArea);
 
 		}
-		// for(var y=9; y>=0; y--){
-		// 	for (var x =0 ; x <10; x++){
-		// 		// console.log('X:'+x+' Y:'+y);
-				// svg.append('rect')
-				// 	.attr('x', scales.x(x))
-				// 	.attr('y', scales.y(densityCorners[y]))
-				// 	.attr('width',scales.x(1))
-				// 	.attr('height',scales.y(100-densityCorners[y]))
-				// 	.attr('fill', function(){
-				// 		return colorScale(densityMatrix[x][y]);
-				// 	})
-				// 	.attr('stroke-width', '1')
-				// 	.classed('density' +densityMatrix[x][y],true)
-				// 	.attr('stroke','black');
-		// 	}
-		// }
 	}
 
 
 	function drawSingleArea(bound){
+
+		var width = scales.x.domain()[0]+1;
+		var minGraphR = scales.y.domain()[0];
+
 		// console.log(bound);
 		r=bound.r;
 		if(r!==0){
 			svg.append('rect')
 				.attr('x', scales.x(k))
 				.attr('y', scales.y(r))
-				.attr('width',scales.x(1))
-				.attr('height',scales.y(maxGraphR-r))
+				.attr('width', scales.x(width))
+				.attr('height',scales.y(maxGraphR-r+minGraphR))
 				.attr('fill', function(){
 					var density = bound.points/(bound.size+1);
 					// console.log('k:'+ k+' r:'+r+' density:'+density+' size:'+bound.size);
@@ -140,6 +132,7 @@ angular.module('indexApp').factory('densityMatrix',
 				.attr('stroke-width', '1')
 				.attr('stroke','black')
 				.attr('class','densityRectangle visible')
+				// .classed('k'+width,true)
 	            .style("pointer-events", "all");
 	        }
 	}

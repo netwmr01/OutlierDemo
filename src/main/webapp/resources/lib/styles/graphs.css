@@ -93,3 +93,26 @@ legend{
     margin:0;
     border: 0;
 }
+
+.link {
+    stroke: #999;
+    stroke-opacity: .4;
+}
+
+.Group1{
+    fill:#FF4500;
+}
+
+.Group2{
+    fill:#00BAFF;
+}
+
+.Group3{
+    fill:blue;
+}
+
+.highlight{
+    stroke: black;
+    stroke-opacity: .6;
+    stroke-width: 1px;
+}
