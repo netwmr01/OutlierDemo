@@ -22,4 +22,9 @@ public class ViewController {
 	public String indexView(@RequestParam(value="name",required=false, defaultValue="World") String name) {
 		return "index";
 	}
+	
+	@RequestMapping("/uploadfiles")
+	public String uploadView(){
+		return "uploadfiles";
+	}
 }

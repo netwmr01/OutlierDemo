@@ -1,5 +1,6 @@
 package controllers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +27,8 @@ import util.dsrg.cs.wpi.edu.DominationManager;
 import util.dsrg.cs.wpi.edu.Pair;
 import util.dsrg.cs.wpi.edu.SortedCandidate;
 
-/** get http request from front-end and return computed dataset
+/** 
+ * get http request from front-end and return computed dataset
  * @author Hui Zheng
  * 
  */
@@ -37,18 +39,18 @@ public class MethodController {
 	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
-
+	String dataFile = "ocMitreDemo.txt";
+	String rootpath="src/main/resources/data";
 
 	/**
 	 * Instantiate the ONION Engine:userStudy
 	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
 	 */
 	public MethodController(){
-		userStudy = new UserStudy();
+		userStudy = new UserStudy("ocMitreDemo.txt");
 		idDataPlane=getIdDataPlane();
 	}
-
-
+	
 	/**
 	 * Shrink MapOutlierCandidate to OutlierID object 
 	 * @return
@@ -64,6 +66,14 @@ public class MethodController {
 		}
 		return idDataPlane;
 
+	}
+	
+	@RequestMapping("/getDataPlane")
+	public @ResponseBody Set<MapOutlierCandidate> getDataPlane(@RequestParam(value="filename") String filename){
+		dataFile=rootpath+File.separator+filename;
+		userStudy = new UserStudy(dataFile);
+		idDataPlane=getIdDataPlane();
+		return userStudy.getPoints();
 	}
 
 	/**
@@ -325,12 +335,12 @@ public class MethodController {
 
 	@RequestMapping("/getDominationGroups")
 	public @ResponseBody HashMap<String,ArrayList<Integer>> getDominationGroups(){
-		String dataFile = "ocMitreDemo.txt";
+
 
 
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -379,7 +389,7 @@ public class MethodController {
 
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -406,7 +416,7 @@ public class MethodController {
 
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -433,7 +443,7 @@ public class MethodController {
 		//instantiate the DominationManager to start initialize the graph
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -472,7 +482,7 @@ public class MethodController {
 		HashSet<OutlierID> hs = new HashSet<OutlierID>();
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -492,7 +502,7 @@ public class MethodController {
 		//instantiate the DominationManager to start initialize the graph
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
