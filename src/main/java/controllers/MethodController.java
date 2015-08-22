@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -485,7 +487,7 @@ public class MethodController {
 	}
 
 	@RequestMapping("/getGroup")
-	public @ResponseBody HashMap<String, HashSet<OutlierID>> getGroup(@RequestParam(value="groupnumber")  String groupnumber){
+	public @ResponseBody LinkedHashMap<String, HashSet<OutlierID>> getGroup(@RequestParam(value="groupnumber")  String groupnumber){
 		String dataFile = "ocMitreDemo.txt";
 		//instantiate the DominationManager to start initialize the graph
 		DominationManager dm=null;
@@ -506,7 +508,7 @@ public class MethodController {
 		int groupNumber = 0; 
 		Iterator<MapOutlierCandidate> mocIte = null;
 		Iterator<Integer> ite = index_list.iterator();
-		HashMap<String,HashSet<OutlierID>> hm = new HashMap<String,HashSet<OutlierID>>();
+		LinkedHashMap<String,HashSet<OutlierID>> hm = new LinkedHashMap<String,HashSet<OutlierID>>();
 
 		while(ite.hasNext()){
 			HashSet<OutlierID> hs = new HashSet<OutlierID>();
@@ -546,7 +548,7 @@ public class MethodController {
 			String key="group"+groupNumber;
 			hm.put(key,hs);
 		}
-		
+
 		return hm;
 	}
 
