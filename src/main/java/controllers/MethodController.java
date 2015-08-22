@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,15 +12,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import demo.dsrg.cs.wpi.edu.*;
-import demo.dsrg.cs.wpi.edu.UserStudy.DataResult;
 import detection.dsrg.cs.wpi.edu.KSortedDataPlain;
-import models.KSList;
 import models.OutlierID;
 import models.RCandidates;
+import models.SimpleData;
+import models.SimpleMapNode;
+import models.SimplePair;
 import openmap.dsrg.cs.wpi.edu.MapNode;
 import openmap.dsrg.cs.wpi.edu.MapOutlierCandidate;
 import util.dsrg.cs.wpi.edu.DominationManager;
-import util.dsrg.cs.wpi.edu.GetVertexCover;
+import util.dsrg.cs.wpi.edu.Pair;
 import util.dsrg.cs.wpi.edu.SortedCandidate;
 
 /** get http request from front-end and return computed dataset
@@ -30,12 +30,12 @@ import util.dsrg.cs.wpi.edu.SortedCandidate;
  */
 @RestController
 public class MethodController {
-	
+
 	UserStudy userStudy;//get the instance of the userStudy interface 
 	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
-	
+
 
 	/**
 	 * Instantiate the ONION Engine:userStudy
@@ -45,7 +45,7 @@ public class MethodController {
 		userStudy = new UserStudy();
 		idDataPlane=getIdDataPlane();
 	}
-	
+
 
 	/**
 	 * Shrink MapOutlierCandidate to OutlierID object 
@@ -55,7 +55,7 @@ public class MethodController {
 		ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();
 
 		Iterator<MapOutlierCandidate> ite = userStudy.getPoints().iterator();
-		
+
 		while(ite.hasNext()){
 			MapOutlierCandidate oc = (MapOutlierCandidate) ite.next();
 			idDataPlane.add(new OutlierID(Integer.valueOf(((MapNode)(oc.getPoint())).getID())));
@@ -63,7 +63,7 @@ public class MethodController {
 		return idDataPlane;
 
 	}
-	
+
 	/**
 	 * Request for method1, user can input k r value pair to get the Outliers
 	 * @param k kvalue
@@ -77,7 +77,7 @@ public class MethodController {
 		System.out.println("K value getted"+k);
 		double doubler=Double.valueOf(r);
 		System.out.println("R value getted"+r);
-		
+
 		//get the raw data from the ONION engine
 		Collection<SortedCandidate> rawResult = UserStudy.getMethod1(intk, doubler);
 		//Instantiate another result set that only contains ID
@@ -114,7 +114,7 @@ public class MethodController {
 			@RequestParam(value="rmin") String rmin,
 			@RequestParam(value="rmax") String rmax){
 
-		
+
 		//translate the k and r values from string to int and double
 		int kMin=Integer.valueOf(kmin);
 		int kMax=Integer.valueOf(kmax);
@@ -124,10 +124,10 @@ public class MethodController {
 		//consule out the k & r value
 		System.out.println("K: "+kMin+"~"+kMax);
 		System.out.println("r: "+rMin+"~"+rMax);
-		
+
 		//get raw data of constant outlier
 		Collection<SortedCandidate> rawConstantOutlier = UserStudy.getMethod1(kMin, rMax);
-		
+
 		//get raw data of constant inlier, 
 		//then get difference of the outlier with the whole data plane
 		Collection<SortedCandidate> rawConstantInlier = UserStudy.getMethod1(kMax, rMin);
@@ -148,10 +148,10 @@ public class MethodController {
 			String id = (String)((MapNode) data.getPoint()).getID();
 			minOutliers.add(new OutlierID(Integer.valueOf(id)));
 		}
-		
+
 		constantInlier.addAll(idDataPlane);
 		constantInlier.removeAll(minOutliers);
-		
+
 
 		System.out.println("CO Size:"+ constantOutlier.size());
 		System.out.println("CI Size:"+ constantInlier.size());
@@ -160,20 +160,20 @@ public class MethodController {
 		ArrayList<Collection<OutlierID>> results = new ArrayList<Collection<OutlierID>>();
 		results.add(constantOutlier);
 		results.add(constantInlier);
-		
+
 		constantSet.addAll(constantOutlier);
-		
+
 		outlierCandidates.addAll(idDataPlane);
 		outlierCandidates.removeAll(constantInlier);
 		outlierCandidates.removeAll(constantOutlier);
-		
+
 		System.out.println("Outlier Candidates #: "+outlierCandidates.size());
-		
+
 
 		return results;
 	}
-	
-	
+
+
 	/**
 	 * return the current outliers after the user choose the k r value range
 	 * AND pick up a k r value pair in the range rectangle 
@@ -186,7 +186,7 @@ public class MethodController {
 			@RequestParam(value="rvalue") String rvalue){
 		int k=Integer.valueOf(kvalue);
 		int r=Integer.valueOf(rvalue);
-		
+
 		//get raw data
 		Collection<SortedCandidate> rawConstantOutlier = UserStudy.getMethod1(k, r);
 
@@ -194,7 +194,7 @@ public class MethodController {
 		Collection<OutlierID> currentInliers = new ArrayList<OutlierID>();
 
 		Iterator<SortedCandidate> iteCCO = rawConstantOutlier.iterator();
-		
+
 		//iterate the data set and find it contains in constant outlier hashset or not
 		//to determine whether it contains of this element is current outlier or not
 		//time complicity O(n)
@@ -207,24 +207,24 @@ public class MethodController {
 			}
 			currentOutliers.add(candidate);
 		}
-		
+
 		currentInliers.addAll(outlierCandidates);
 		currentInliers.removeAll(currentOutliers);
-		
-		
+
+
 		ArrayList<Collection<OutlierID>> results = new ArrayList<Collection<OutlierID>>();
 		results.add(currentOutliers);
 		results.add(currentInliers);
-		
+
 		System.out.println("Outlier Candidates #: "+outlierCandidates.size());
 		System.out.println("Current Outliers #: "+currentOutliers.size());
 		System.out.println("Current Inliers#: "+currentInliers.size());
-		
-		
-		
+
+
+
 		return results;
 	}
-	
+
 	/**
 	 * This request function will return ALL of the ksortedlist
 	 * 
@@ -233,20 +233,20 @@ public class MethodController {
 	 */
 	@RequestMapping("/getKSortedList")
 	public @ResponseBody HashMap<String,ArrayList<RCandidates>> getKSortedList(){
-		
+
 		//get raw data
 		KSortedDataPlain kSortedDataPlain = userStudy.getKSortedList();
 		ArrayList<ArrayList<SortedCandidate>> rawdp = kSortedDataPlain.getEntireSpace();
 		HashMap<String,ArrayList<RCandidates>> dp = new HashMap<String,ArrayList<RCandidates>>();
 		System.out.println("rawdp size: "+rawdp.size());
-		
+
 		Iterator<ArrayList<SortedCandidate>> ite = rawdp.iterator();
 		int counter = 1;
 		while(ite.hasNext()){
 			String key = "k"+counter;
 			System.out.println("key: "+ key);
 			ArrayList<RCandidates> rlist = new ArrayList<RCandidates>();
-			
+
 			ArrayList<SortedCandidate> sortedCandidateList=(ArrayList<SortedCandidate>) ite.next();
 			Iterator<SortedCandidate> scite = sortedCandidateList.iterator();
 			while(scite.hasNext()){
@@ -257,11 +257,11 @@ public class MethodController {
 			dp.put(key, rlist);
 			counter++;
 		}
-		
+
 		return dp;
-		
+
 	}
-	
+
 
 	/**
 	 * given a specific range of k r range, get an 
@@ -276,12 +276,12 @@ public class MethodController {
 			@RequestParam(value="kmax") String kmax,
 			@RequestParam(value="rmin") String rmin,
 			@RequestParam(value="rmax") String rmax){
-		
+
 		System.out.println("getKSortedListRange Get Called!");
-		
+
 		KSortedDataPlain kSortedDataPlain = userStudy.getKSortedList();
 		ArrayList<ArrayList<SortedCandidate>> rawdp = kSortedDataPlain.getEntireSpace();
-		
+
 		Iterator<ArrayList<SortedCandidate>> ite = rawdp.iterator();
 		HashMap<String,ArrayList<RCandidates>> dp = new HashMap<String,ArrayList<RCandidates>>();
 		int kcounter = 1;
@@ -313,47 +313,47 @@ public class MethodController {
 			dp.put(key,rlist);
 			kcounter++;
 		}
-		
+
 		System.out.println("getKSortedListRange Finished!");
-		
+
 		return dp;
-		
+
 	}
-	
-	
+
+
 	@RequestMapping("/getDominationGroups")
-	public @ResponseBody ArrayList<HashMap<String,ArrayList<Integer>>> getDominationGroups(){
+	public @ResponseBody HashMap<String,ArrayList<Integer>> getDominationGroups(){
 		String dataFile = "ocMitreDemo.txt";
-		
-		ArrayList<HashMap<String,ArrayList<Integer>>> result = new ArrayList<HashMap<String,ArrayList<Integer>>>();
-		
+
+
 		DominationManager dm=null;
 		try{
 			dm = DominationManager.getInstance();
-			
+
 		}catch(Exception e){
 			System.out.println(e);
 		}
-		
-		
+
+
 		int i;
+		HashMap<String,ArrayList<Integer>> hashMap= new HashMap<String,ArrayList<Integer>>();
 		for (i=1;i<=3;i++){
-			List set = null;
+			Set set = null;
 			String lable = "Group"+i;
 			ArrayList<Integer> list = new ArrayList<Integer>(); 
 			try {
 				switch(i){
-					case 1: 
-						set = dm.getGroup1();
-						break;
-					case 2:
-						set = dm.getGroup2();
-						break;
-					case 3:
-						set = dm.getGroup3();
-						break;
+				case 1: 
+					set = dm.getGroup1();
+					break;
+				case 2:
+					set = dm.getGroup2();
+					break;
+				case 3:
+					set = dm.getGroup3();
+					break;
 				}
-				
+
 				Iterator ite =set.iterator();
 				while(ite.hasNext()){
 					MapOutlierCandidate moc= (MapOutlierCandidate) ite.next();
@@ -362,18 +362,193 @@ public class MethodController {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			
-			HashMap<String,ArrayList<Integer>> hashMap= new HashMap<String,ArrayList<Integer>>();
+			}			
 			hashMap.put(lable, list);
-			result.add(hashMap);
+		}
+
+		return hashMap;
+	}
+
+
+	@RequestMapping("/getAllNodes")
+	public @ResponseBody ArrayList<SimpleMapNode> getAllNodes(){
+		String dataFile = "ocMitreDemo.txt";
+		ArrayList<SimpleMapNode> nodes= new ArrayList<SimpleMapNode>();
+
+		DominationManager dm=null;
+		try{
+			dm = DominationManager.getInstance();
+
+		}catch(Exception e){
+			System.out.println(e);
+		}
+
+		Iterator<MapOutlierCandidate> nodes_ite = null;
+		try {
+			nodes_ite = dm.getVertexSet().iterator();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		while(nodes_ite.hasNext()){
+			MapNode mn = (MapNode) nodes_ite.next().getPoint();
+			SimpleMapNode smn = new SimpleMapNode(Integer.valueOf(mn.getID()), mn.getLat(), mn.getLon());
+			nodes.add(smn);
+		}
+		return nodes;
+	}
+
+	@RequestMapping("/getAllEdges")
+	public @ResponseBody ArrayList<SimplePair> getAllEdges(){
+		String dataFile = "ocMitreDemo.txt";
+
+		DominationManager dm=null;
+		try{
+			dm = DominationManager.getInstance();
+
+		}catch(Exception e){
+			System.out.println(e);
+		}
+
+		ArrayList<SimplePair> edges = new ArrayList<SimplePair>();
+		Iterator<Pair> edges_ite = dm.getAllEdges().iterator();
+		while(edges_ite.hasNext()){
+			Pair pair = edges_ite.next();
+			SimplePair simplepair = new SimplePair(Integer.valueOf(pair.s.n.getID()),Integer.valueOf(pair.t.n.getID()));
+			edges.add(simplepair);
+		}
+		return edges;
+	}
+
+	@RequestMapping("/getGraph")
+	public @ResponseBody HashMap<String,ArrayList<SimpleData>> getGraph(){
+		String dataFile = "ocMitreDemo.txt";
+
+		HashMap<String,ArrayList<SimpleData>> hm = new HashMap<String,ArrayList<SimpleData>>();
+		ArrayList<SimpleData> nodes= new ArrayList<SimpleData>();
+		ArrayList<SimpleData> edges= new ArrayList<SimpleData>();
+
+		//instantiate the DominationManager to start initialize the graph
+		DominationManager dm=null;
+		try{
+			dm = DominationManager.getInstance();
+
+		}catch(Exception e){
+			System.out.println(e);
+		}
+
+		//get
+		Iterator<MapOutlierCandidate> nodes_ite = null;
+		try {
+			nodes_ite =dm.getVertexSet().iterator();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		while(nodes_ite.hasNext()){
+			MapNode mn = (MapNode) nodes_ite.next().getPoint();
+			SimpleData smn = new SimpleMapNode(Integer.valueOf(mn.getID()), mn.getLat(), mn.getLon());
+			nodes.add(smn);
+		}
+		hm.put("nodes", nodes);
+
+		Iterator<Pair> edges_ite = dm.getAllEdges().iterator();
+		while(edges_ite.hasNext()){
+			Pair pair = edges_ite.next();
+			SimpleData simplepair = new SimplePair(Integer.valueOf(pair.s.n.getID()),Integer.valueOf(pair.t.n.getID()));
+			edges.add(simplepair);
+		}
+		hm.put("links", edges);
+		return hm;
+	}
+
+	@RequestMapping("/getNonDominatePoints")
+	public @ResponseBody HashSet<OutlierID> getNonDominatePoints(){
+
+		String dataFile = "ocMitreDemo.txt";
+		//instantiate the DominationManager to start initialize the graph
+		HashSet<OutlierID> hs = new HashSet<OutlierID>();
+		DominationManager dm=null;
+		try{
+			dm = DominationManager.getInstance();
+
+		}catch(Exception e){
+			System.out.println(e);
+		}
+
+		Iterator<MapOutlierCandidate> ite = dm.getNonDominatePoints().iterator();
+		while(ite.hasNext()){
+			hs.add(new OutlierID(Integer.valueOf(ite.next().n.getID())));
+		}
+
+		return hs;
+	}
+
+	@RequestMapping("/getGroup")
+	public @ResponseBody HashMap<String, HashSet<OutlierID>> getGroup(@RequestParam(value="groupnumber")  String groupnumber){
+		String dataFile = "ocMitreDemo.txt";
+		//instantiate the DominationManager to start initialize the graph
+		DominationManager dm=null;
+		try{
+			dm = DominationManager.getInstance();
+
+		}catch(Exception e){
+			System.out.println(e);
+		}
+		int gn= Integer.valueOf(groupnumber);
+		ArrayList<Integer> index_list = new ArrayList<Integer>();
+		char[] numbers = groupnumber.toCharArray();
+		for (char c : numbers)
+		{
+			index_list.add(Integer.valueOf(Character.toString(c)));
 		}
 		
-		return result;
+		int groupNumber = 0; 
+		Iterator<MapOutlierCandidate> mocIte = null;
+		Iterator<Integer> ite = index_list.iterator();
+		HashMap<String,HashSet<OutlierID>> hm = new HashMap<String,HashSet<OutlierID>>();
+
+		while(ite.hasNext()){
+			HashSet<OutlierID> hs = new HashSet<OutlierID>();
+			groupNumber=ite.next();
+			System.out.println("The index is: "+groupNumber);
+			switch(groupNumber){
+			case 0:
+				mocIte = dm.getNonDominatePoints().iterator();
+				break;
+			case 1:
+				try {
+					mocIte = dm.getGroup1().iterator();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			case 2:
+				try {
+					mocIte = dm.getGroup2().iterator();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			case 3:
+				try {
+					mocIte = dm.getGroup3().iterator();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			while(mocIte.hasNext()){
+				hs.add(new OutlierID(Integer.valueOf(mocIte.next().n.getID())));
+			}
+			String key="group"+groupNumber;
+			hm.put(key,hs);
+		}
+		
+		return hm;
 	}
-	
-	
-	
 
 
 }
