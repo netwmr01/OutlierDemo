@@ -1,5 +1,5 @@
 angular.module('indexApp').directive('dataplane',
-    ['updateBoundaryGraph','densityMatrix', function(updateBoundaryGraph,densityMatrix){
+    ['$http','updateBoundaryGraph','densityMatrix', function($http, updateBoundaryGraph,densityMatrix){
 
     return{
         link: link,

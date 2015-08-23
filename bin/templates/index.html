@@ -4,17 +4,21 @@
     <title>ONION</title>
     <meta charset="utf-8"></meta>
     <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+    <!--- vender -->
+    <script src="resources/lib/vendor/angular.js"></script>
+    <script src="resources/lib/vendor/ui-bootstrap-tpls-0.13.1.js"></script>
+    <script src="resources/lib/vendor/colorbrewer.js"></script>
+    <script src="http://d3js.org/d3.v3.js"></script>
     <link rel="stylesheet" href="resources/lib/vendor/bootstrap.min.css"></link>
-    <!-- <link rel="stylesheet" href="resources/lib/vendor/bootstrap-united.min.css"/> -->
-    <!-- <link rel="stylesheet" href="resources/lib/vendor/bootstrap-darkly.min.css"/> -->
+    
+    <script src="resources/lib/app.js"></script>
+    <!--- Styles  -->
     <link rel="stylesheet" type="text/css" href="resources/lib/styles/style.css"></link>
     <link rel="stylesheet" type="text/css" href="resources/lib/styles/graphs.css"></link>
-    <!-- <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> -->
-    <script src="resources/lib/vendor/angular.js"></script>
-    <script src="resources/lib/app.js"></script>
     <!---controllers -->
     <script src="resources/lib/controllers/boundaryCtrl.js"></script>
     <script src="resources/lib/controllers/datasetCtrl.js"></script>
+    <script src="resources/lib/controllers/legendCtrl.js"></script>
     <script src="resources/lib/controllers/tabCtrl.js"></script>
     <script src="resources/lib/controllers/sliderCtrl.js"></script>
     <!---directives -->
@@ -28,9 +32,6 @@
     <script src="resources/lib/services/getConstLiers.js"></script>
     <script src="resources/lib/services/densityMatrix.js"></script>
     <script src="resources/lib/services/updateKR.js"></script>
-    <script src="resources/lib/vendor/ui-bootstrap-tpls-0.13.1.js"></script>
-    <script src="resources/lib/vendor/colorbrewer.js"></script>
-    <script src="http://d3js.org/d3.v3.js"></script>
 </head>
 <body>
 
@@ -72,7 +73,18 @@
             <tabset class="tabs">
                 <tab heading="Data Plane" ng-controller="datasetCtrl">
                     <dataplane></dataplane>
-                    <legend></legend>
+                    <div ng-controller="legendCtrl">
+	                    <legend class="col-md-6"></legend>
+	                    <div class="btn-group dropup" dropdown="" is-open="status.isopen">
+							<button id="single-button" type="button" class="btn btn-primary" dropdown-toggle="" ng-disabled="disabled">
+								Showing: {{names[currentlyVisible]}} <span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="single-button">
+								<li role="menuitem" ng-click="show(0)"><a href="#">Outlierness</a></li>
+								<li role="menuitem" ng-click="show(1)"><a href="#">Groups</a></li>
+							</ul>
+						</div>
+				    </div>
                 </tab>
             </tabset>
         </div>

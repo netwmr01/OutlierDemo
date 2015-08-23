@@ -99,6 +99,22 @@ legend{
     stroke-opacity: .4;
 }
 
+.node.Group1{
+    fill:#FF4500;
+}
+
+.node.Group2{
+    fill:#00BAFF;
+}
+
+.node.Group3{
+    fill:green;
+}
+
+.Group0{
+	fill:#FFF;
+}
+
 .Group1{
     fill:#FF4500;
 }
@@ -108,11 +124,15 @@ legend{
 }
 
 .Group3{
-    fill:blue;
+    fill:green;
 }
 
 .highlight{
     stroke: black;
     stroke-opacity: .6;
     stroke-width: 1px;
+}
+
+legend{
+	width:50%;
 }

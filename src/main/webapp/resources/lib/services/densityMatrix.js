@@ -71,7 +71,7 @@ angular.module('indexApp').factory('densityMatrix',
 			var kValue = key.slice(1)-1;
 			var rValuesTemp=[];
 			var kSortedList=data[key];
-			var step = amountPerArea[kvalue];
+			var step = amountPerArea[kValue];
 			var currentIndex = step;
 			var previousR = 0;
 			// console.log(kSortedList);
@@ -98,7 +98,7 @@ angular.module('indexApp').factory('densityMatrix',
 
 		
 		for (var key in rValues){
-			console.log(key);
+//			console.log(key);
 			kSortedList = rValues[key];
 			k = key.slice(1)-1;
 			// console.log(k);

@@ -175,11 +175,8 @@ angular.module('indexApp').directive('domination',
                 d3.json("resources/lib/sampleJSONs/sample_groups_json.json", function(error, groups) {
                     if (error) throw error;
                     // console.log(groups);
-                    // console.log(d3.select('#did15787'));
                     console.log(groups);
                     for( var group in groups){
-                        // console.log(group);
-                        // console.log(groups[group]);
                         groups[group].forEach(setGroups, group);
                         var groupg=nodeg.append('g')
                                         .attr('class','layer '+group);
@@ -327,6 +324,8 @@ angular.module('indexApp').directive('domination',
                 // if(index%1000 === 0){console.log(this);}
                 svg.select('#did'+id)
                     .classed(this,true);
+                d3.select(".dataset").select('#id'+id)
+                	.classed(this+"invis",true);
             }
 
         }
