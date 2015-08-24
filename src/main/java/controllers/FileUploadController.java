@@ -44,25 +44,26 @@ public class FileUploadController {
 				File serverFile = new File(dir.getAbsolutePath()
 						+ File.separator + name);
 
-				//check the validity of the data fomart
-				//				Pattern p = Pattern.compile ("[0-9]+(,(0("+"\."+"[0-9]+))){2}#[0-9]+(\.[0-9]+){0,1}(,([0-9]+(\.[0-9]+){0,1}))*");
-				//
-				//				InputStream inputStream = file.getInputStream();
-				//				InputStreamReader isr = new InputStreamReader (inputStream);
-				//				BufferedReader buf = new BufferedReader (isr);
-				//				String str = null;
-				//				while ((str = buf.readLine ()) != null) 
-				//				{
-				//					//	Matcher m = p.matcher (str);
-				//					if(str.matches("[0-9]+(,(0(\.[0-9]+))){2}#[0-9]+(\.[0-9]+){0,1}(,([0-9]+(\.[0-9]+){0,1}))*")){
-				//						return "The data in file"+name+ "is not valid"; 
-				//					}
-				//
-				//				} 
-				//				buf.close();
-				//				isr.close();
-				//				inputStream.close();
+				/**check the validity of the data fomart
+								Pattern p = Pattern.compile ("[0-9]+(,(0("+"\."+"[0-9]+))){2}#[0-9]+(\.[0-9]+){0,1}(,([0-9]+(\.[0-9]+){0,1}))*");
 
+								InputStream inputStream = file.getInputStream();
+								InputStreamReader isr = new InputStreamReader (inputStream);
+								BufferedReader buf = new BufferedReader (isr);
+								String str = null;
+								while ((str = buf.readLine ()) != null) 
+								{
+									//	Matcher m = p.matcher (str);
+									if(str.matches("[0-9]+(,(0(\.[0-9]+))){2}#[0-9]+(\.[0-9]+){0,1}(,([0-9]+(\.[0-9]+){0,1}))*")){
+										return "The data in file"+name+ "is not valid"; 
+									}
+
+								} 
+								buf.close();
+								isr.close();
+								inputStream.close();
+				 **/
+				
 
 				BufferedOutputStream stream =
 						new BufferedOutputStream(new FileOutputStream(serverFile));
@@ -79,5 +80,8 @@ public class FileUploadController {
 			return "You failed to upload " + name + " because the file was empty.";
 		}
 	}
+	
+	
+//	@RequestMapping(value="/upload", method=RequestMethod.POST);
 
 }

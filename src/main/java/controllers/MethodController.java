@@ -47,7 +47,8 @@ public class MethodController {
 	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
 	 */
 	public MethodController(){
-		userStudy = new UserStudy("ocMitreDemo.txt");
+		dataFile=rootpath+File.separator+dataFile;
+		userStudy = new UserStudy(dataFile);
 		idDataPlane=getIdDataPlane();
 	}
 	
