@@ -17,10 +17,11 @@ angular.module('indexApp').directive('legend', function(){
 
         // console.log("started creating legend");
         var svg = d3.select('legend').append('svg')
-            .attr("width", 300)
-            .attr("height", function(){
-                return legends.length/2 *20;
-            });
+            .attr("width", function(){
+                return (90+18+ Math.floor((legends.length-1)/2)*120);
+            })
+            .attr("height", 40);
+        
         var legend = svg.selectAll(".legend")
             .data(legends)
             .enter().append("g")
@@ -29,6 +30,9 @@ angular.module('indexApp').directive('legend', function(){
                 // console.log(i);
                 return "translate("+(90+ Math.floor(i/2)*120)+ "," + i%2*20 + ")";
                 //return "translate(" + i * 20 + ",90)";
+            })
+            .on('mousedown', function(){
+            	console.log("clicked")
             });
 
         // draw legend colored rectangles
@@ -36,7 +40,7 @@ angular.module('indexApp').directive('legend', function(){
             .attr("width", 18)
             .attr("height", 18)
             .attr("class", function (d) {
-                return d.class_name;
+                return d.class_name +" legendBox";
             });
 
         // draw legend text
@@ -45,6 +49,7 @@ angular.module('indexApp').directive('legend', function(){
             .attr('dx', "-5px")
             .style("text-anchor", "end")
             .style("font-size", "12")
+            .attr("class", "legendText")
             .text(function (d) {
                 return d.actual_name;
             });

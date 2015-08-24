@@ -1,10 +1,10 @@
 angular.module('indexApp').factory('updateKR',
     ['$http','$rootScope', function($http,$rootScope){
 
-	kvalue=5;
-    rvalue=5000;
-    oldK=0;
-    oldR=0;
+	var kvalue=0;
+	var rvalue=0;
+	var oldK=0;
+	var oldR=0;
 
 
     //sets the kr values
@@ -24,14 +24,15 @@ angular.module('indexApp').factory('updateKR',
         // broadcasts the updateKR value with the kvalue and rvalue arguments
 		$rootScope.$broadcast('updateKR', {k:kvalue, r:rvalue});
 
-
         // if either of the new values have changed, redraw the dataplane
         if(rvalue===oldR && kvalue===oldK){
             console.log('K and R are the same as previous request');
         }
         else{
+        	console.log("getting outliers");
 	        $http.get('http://localhost:8080/method1?k='+kvalue+'&r='+rvalue)
 	            .success(function(data) {
+	            	console.log("ReDrawing Points");
                     // broadcasts the redrawDataPoints with the data argument
 	            	$rootScope.$broadcast('redrawDataPoints',{data:data});
 	            })

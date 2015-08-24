@@ -6,7 +6,6 @@ angular.module('indexApp').controller('datasetCtrl',
     // for the current and r values
 	$scope.$on('redrawDataPoints', function (event, args) {
 		var data= args.data;
-
         // reset current outliers
         d3.selectAll('.dataPoint.outlier')
             .classed('outlier', false);
@@ -39,5 +38,46 @@ angular.module('indexApp').controller('datasetCtrl',
             updateBoundaryGraph.setDomain(domain);
         });
 
+	});
+		
+	$scope.$on('redrawConstLiers', function(event, args){
+        var constOut = args.data[0];
+        var constIn = args.data[1];
+
+        // console.log(constOut);
+        console.log('starting constant outlier');
+        
+        //reset current constant outliers
+        d3.select('.dataPoint.constOut')
+            .classed('constOut',false);
+
+        // sets const out
+        constOut.forEach(function(element){
+            var sPoint = d3.selectAll('#id'+element.id.toString());
+            // console.log(sPoint);
+            if(sPoint){
+                // console.log(sPoint.data()[0].point.id);
+                sPoint.classed('constOut', true);
+                // console.log(sPoint.classed('constOut'));
+            }
+        });
+
+        console.log('starting constant inlier');
+        // console.log(constIn.length);
+
+        // reset constIn
+        d3.select('.dataPoint.constIn')
+            .classed('constIn',false);
+
+        // sets constIn
+        constIn.forEach(function(element){
+            var sPoint = d3.selectAll('#id'+element.id.toString());
+            if(sPoint){
+                // console.log(sPoint.data()[0].point.id);
+                sPoint.classed('constIn', true);
+                // console.log(sPoint.classed('constIn'));
+            }
+        });
+        console.log('Finished Constant Liers');
 	});
 }]);
