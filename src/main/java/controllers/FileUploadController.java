@@ -31,10 +31,11 @@ public class FileUploadController {
 	private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
 
 	@RequestMapping(value="/upload", method=RequestMethod.POST)
-	public @ResponseBody String handleFileUpload(@RequestParam("name") String name,
-			@RequestParam("file") MultipartFile file){
+	public @ResponseBody String handleFileUpload(@RequestParam("file") MultipartFile file){
+		String name = null;
 		if (!file.isEmpty()) {
 			try {
+				name = file.getOriginalFilename();
 				byte[] bytes = file.getBytes();
 				String rootPath = "src/main/resources/data";
 				File dir = new File(rootPath);
