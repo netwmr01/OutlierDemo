@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedHashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class FileUploadController {
 	private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
-
+	String rootPath = "src/main/resources/data";
+	
 	@RequestMapping(value="/upload", method=RequestMethod.POST)
 	public @ResponseBody String handleFileUpload(@RequestParam("file") MultipartFile file){
 		String name = null;
@@ -37,7 +39,7 @@ public class FileUploadController {
 			try {
 				name = file.getOriginalFilename();
 				byte[] bytes = file.getBytes();
-				String rootPath = "src/main/resources/data";
+				
 				File dir = new File(rootPath);
 				if (!dir.exists())
 					dir.mkdirs();
@@ -82,6 +84,21 @@ public class FileUploadController {
 	}
 	
 	
-//	@RequestMapping(value="/upload", method=RequestMethod.POST);
+	@RequestMapping(value="/getExistingFileList")
+	public @ResponseBody LinkedHashSet<String> getExistingFileList(){
+		LinkedHashSet<String> fileSet = new LinkedHashSet<String>();
+		File directory = new File(rootPath);
+		File[] fList = directory.listFiles();
+		for(File f: fList){
+			if(f.isDirectory()){
+				fileSet.add(f.getName());
+			}
+		}
+		
+		return fileSet;
+	}
+	
+	
+
 
 }

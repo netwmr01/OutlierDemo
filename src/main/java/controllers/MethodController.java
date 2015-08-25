@@ -1,6 +1,12 @@
 package controllers;
 
+
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,12 +14,18 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 import demo.dsrg.cs.wpi.edu.*;
 import detection.dsrg.cs.wpi.edu.KSortedDataPlain;
 import models.OutlierID;
@@ -26,6 +38,7 @@ import openmap.dsrg.cs.wpi.edu.MapOutlierCandidate;
 import util.dsrg.cs.wpi.edu.DominationManager;
 import util.dsrg.cs.wpi.edu.Pair;
 import util.dsrg.cs.wpi.edu.SortedCandidate;
+import org.apache.commons.io.FilenameUtils;
 
 /** 
  * get http request from front-end and return computed dataset
@@ -34,20 +47,20 @@ import util.dsrg.cs.wpi.edu.SortedCandidate;
  */
 @RestController
 public class MethodController {
-
+	DominationManager dm;
 	UserStudy userStudy;//get the instance of the userStudy interface 
 	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
 	String dataFile = "ocMitreDemo.txt";
-	String rootpath="src/main/resources/data";
+	String rootPath="src/main/resources/data";
 
 	/**
 	 * Instantiate the ONION Engine:userStudy
 	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
 	 */
 	public MethodController(){
-		dataFile=rootpath+File.separator+dataFile;
+		dataFile=rootPath+File.separator+dataFile;
 		userStudy = new UserStudy(dataFile);
 		idDataPlane=getIdDataPlane();
 	}
@@ -71,7 +84,10 @@ public class MethodController {
 	
 	@RequestMapping("/getDataPlane")
 	public @ResponseBody Set<MapOutlierCandidate> getDataPlane(@RequestParam(value="filename") String filename){
-		dataFile=rootpath+File.separator+filename;
+		String foldername = FilenameUtils.removeExtension(filename);
+		dataFile=rootPath+File.separator+foldername+File.separator+filename;
+
+		System.out.println("The path of the datafile:"+dataFile);
 		userStudy = new UserStudy(dataFile);
 		idDataPlane=getIdDataPlane();
 		return userStudy.getPoints();
@@ -186,6 +202,33 @@ public class MethodController {
 		return results;
 	}
 
+	
+	@RequestMapping("/getComparativeOutliers")
+	public @ResponseBody HashMap<String,HashSet<OutlierID>> getComparativeOutliers(
+			@RequestParam(value="id") String id,
+			@RequestParam(value="kmin") String kmin,
+			@RequestParam(value="kmax") String kmax){
+		HashMap<String,HashSet<OutlierID>> result = new HashMap<String, HashSet<OutlierID>>();
+		int kMin = Integer.valueOf(kmin);
+		int kMax = Integer.valueOf(kmax); 
+		ArrayList<List<SortedCandidate>> rawCoResult = new ArrayList<List<SortedCandidate>>();
+		rawCoResult.addAll(userStudy.getMethod2(id));
+		int counter=0;
+		for(List<SortedCandidate> s: rawCoResult){
+			if(!(counter>=kMin&&counter<=kMax)){
+				break;
+			}
+			
+			String tag = "k"+counter;
+			HashSet<OutlierID> set = new HashSet<OutlierID>();
+			for(SortedCandidate sc:s){
+				set.add(new OutlierID(Integer.valueOf(((MapNode) sc.getPoint()).getID())));
+			}
+			result.put(tag, set);
+			counter++;
+		}
+		return result;
+	}
 
 	/**
 	 * return the current outliers after the user choose the k r value range
@@ -385,7 +428,6 @@ public class MethodController {
 
 	@RequestMapping("/getAllNodes")
 	public @ResponseBody ArrayList<SimpleMapNode> getAllNodes(){
-		String dataFile = "ocMitreDemo.txt";
 		ArrayList<SimpleMapNode> nodes= new ArrayList<SimpleMapNode>();
 
 		DominationManager dm=null;
@@ -413,7 +455,6 @@ public class MethodController {
 
 	@RequestMapping("/getAllEdges")
 	public @ResponseBody ArrayList<SimplePair> getAllEdges(){
-		String dataFile = "ocMitreDemo.txt";
 
 		DominationManager dm=null;
 		try{
@@ -435,7 +476,6 @@ public class MethodController {
 
 	@RequestMapping("/getGraph")
 	public @ResponseBody HashMap<String,ArrayList<SimpleData>> getGraph(){
-		String dataFile = "ocMitreDemo.txt";
 
 		HashMap<String,ArrayList<SimpleData>> hm = new HashMap<String,ArrayList<SimpleData>>();
 		ArrayList<SimpleData> nodes= new ArrayList<SimpleData>();
@@ -478,7 +518,6 @@ public class MethodController {
 	@RequestMapping("/getNonDominatePoints")
 	public @ResponseBody HashSet<OutlierID> getNonDominatePoints(){
 
-		String dataFile = "ocMitreDemo.txt";
 		//instantiate the DominationManager to start initialize the graph
 		HashSet<OutlierID> hs = new HashSet<OutlierID>();
 		DominationManager dm=null;
@@ -499,9 +538,15 @@ public class MethodController {
 
 	@RequestMapping("/getGroup")
 	public @ResponseBody LinkedHashMap<String, HashSet<OutlierID>> getGroup(@RequestParam(value="groupnumber")  String groupnumber){
-		String dataFile = "ocMitreDemo.txt";
+
+		return getGroups(groupnumber);
+	}
+	
+	
+	public LinkedHashMap<String, HashSet<OutlierID>> getGroups(String groupnumber){
 		//instantiate the DominationManager to start initialize the graph
-		DominationManager dm=null;
+
+
 		try{
 			dm = DominationManager.getInstance(dataFile);
 
@@ -559,9 +604,71 @@ public class MethodController {
 			String key="group"+groupNumber;
 			hm.put(key,hs);
 		}
-
+		
 		return hm;
 	}
 
+	
+	@RequestMapping("/preComuteAllFiles")
+	public int preComuteAllFiles(){
+		String originalFileName= dataFile;
+		String originalRootPath = rootPath;
+		int fileNumber=0;
+		File directory = new File(rootPath);
+		File[] fList = directory.listFiles();
+		for(final File f: fList){
+			if(f.isDirectory()){
+				File[] files = f.listFiles();
+				int i;
+				File dir;
+				File df;
+				
+				FileFilter filter =new FileFilter(){
+					public boolean accept(File file){
+							return file.getName().startsWith(f.getName());							
+					}
+				};
+				File[] result = f.listFiles(filter);
+				rootPath = f.getPath();
+				System.out.println("The rootPath changed to: "+rootPath);
+				if(result.length!=0)
+					dataFile = f.listFiles(filter)[0].getAbsolutePath();
+				System.out.println("About to Pre Compute: "+ dataFile);
+				
+
+				
+				for(i=0;i<4;i++){//check whether the gourp 0-3 files exists
+					dir=new File(rootPath);
+					df = new File(dir.getAbsolutePath()
+							+ File.separator + "group"+i+".json");
+					if(!df.exists()){
+						ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+						String json = null;
+
+						try {
+							json = ow.writeValueAsString(getGroups(String.valueOf(i)));
+							BufferedOutputStream stream =
+									new BufferedOutputStream(new FileOutputStream(df));
+							stream.write(json.getBytes());
+							stream.close();
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				fileNumber++;
+			}
+		}
+		dataFile = originalFileName;
+		rootPath = originalRootPath; 
+		return fileNumber;
+	}
 
 }
