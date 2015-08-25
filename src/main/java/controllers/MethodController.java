@@ -205,12 +205,13 @@ public class MethodController {
 	
 	@RequestMapping("/getComparativeOutliers")
 	public @ResponseBody HashMap<String,HashSet<OutlierID>> getComparativeOutliers(
-			@RequestParam(value="id") String id,
-			@RequestParam(value="kmin") String kmin,
-			@RequestParam(value="kmax") String kmax){
+			@RequestParam(value="id",required= true) String id,
+			@RequestParam(value="kmin",required = false) String kmin,
+			@RequestParam(value="kmax", required = false) String kmax){
 		HashMap<String,HashSet<OutlierID>> result = new HashMap<String, HashSet<OutlierID>>();
-		int kMin = Integer.valueOf(kmin);
-		int kMax = Integer.valueOf(kmax); 
+		
+		int kMin = kmin==null? 0 : Integer.valueOf(kmin);
+		int kMax = kmax==null? 9 : Integer.valueOf(kmax); 
 		ArrayList<List<SortedCandidate>> rawCoResult = new ArrayList<List<SortedCandidate>>();
 		rawCoResult.addAll(userStudy.getMethod2(id));
 		int counter=0;
@@ -609,8 +610,8 @@ public class MethodController {
 	}
 
 	
-	@RequestMapping("/preComuteAllFiles")
-	public int preComuteAllFiles(){
+	@RequestMapping("/preComputeAllFiles")
+	public int preComputeAllFiles(){
 		String originalFileName= dataFile;
 		String originalRootPath = rootPath;
 		int fileNumber=0;
