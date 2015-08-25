@@ -6,7 +6,6 @@ angular.module('indexApp').factory('updateKR',
 	var oldK=0;
 	var oldR=0;
 
-
     //sets the kr values
     setKR = function(k,r){
         oldK=kvalue;
@@ -31,8 +30,9 @@ angular.module('indexApp').factory('updateKR',
         else{
         	console.log("getting outliers");
 	        $http.get('http://localhost:8080/method1?k='+kvalue+'&r='+rvalue)
-	            .success(function(data) {
-	            	console.log("ReDrawing Points");
+	            .success(function(data){
+	            	console.log("Redrawing Points");
+//	            	console.log(data);
                     // broadcasts the redrawDataPoints with the data argument
 	            	$rootScope.$broadcast('redrawDataPoints',{data:data});
 	            })
@@ -43,6 +43,6 @@ angular.module('indexApp').factory('updateKR',
 
     };
 
-    return {setKR: setKR};
+    return {setKR: setKR, updateKR:updateKR};
 
 }]);

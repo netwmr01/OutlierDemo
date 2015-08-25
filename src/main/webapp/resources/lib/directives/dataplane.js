@@ -1,5 +1,6 @@
 angular.module('indexApp').directive('dataplane',
-    ['$http','updateBoundaryGraph','densityMatrix', function($http, updateBoundaryGraph,densityMatrix){
+    ['$http','$rootScope','updateBoundaryGraph','densityMatrix', 'updateKR', 
+     function($http, $rootScope,updateBoundaryGraph,densityMatrix, updateKR){
 
     return{
         link: link,
@@ -189,6 +190,25 @@ angular.module('indexApp').directive('dataplane',
                     updateBoundaryGraph.update();
 
                 });
+            
+            d3.json("resources/lib/sampleJSONs/getAllGroups.json", function(error, groups) {
+                if (error) throw error;
+                // console.log(groups);
+                console.log(groups);
+                for( var group in groups){
+                    groups[group].forEach(setGroups, group);
+                }
+                function setGroups(gNode, index, array){
+//	                if(index%1000 === 0){
+//	                	console.log(this);
+//	                	console.log(gNode.id)}
+	              	var id = gNode.id;
+	                d3.select('#id'+id)
+	              		.classed(this+"invis",true);
+	              }
+            });
+            //force the outliers to update
+            updateKR.updateKR();
 
         });
 
