@@ -99,31 +99,23 @@ legend{
     stroke-opacity: .4;
 }
 
-.node.Group1{
-    fill:#FF4500;
+invisible{
+	opacity:0;
 }
 
-.node.Group2{
-    fill:#00BAFF;
-}
-
-.node.Group3{
-    fill:green;
-}
-
-.Group0{
+.group0, .dataPoint.group0{
 	fill:#FFF;
 }
 
-.Group1{
+.group1, .node.group1, .dataPoint.group1{
     fill:#FF4500;
 }
 
-.Group2{
+.group2, .node.group2, .dataPoint.group2{
     fill:#00BAFF;
 }
 
-.Group3{
+.group3, .node.group3, .dataPoint.group3{
     fill:green;
 }
 

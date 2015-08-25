@@ -172,7 +172,7 @@ angular.module('indexApp').directive('domination',
 
                 // console.log("done adjusting graph");
 
-                d3.json("resources/lib/sampleJSONs/sample_groups_json.json", function(error, groups) {
+                d3.json("resources/lib/sampleJSONs/groups123.json", function(error, groups) {
                     if (error) throw error;
                     // console.log(groups);
                     console.log(groups);
@@ -234,7 +234,7 @@ angular.module('indexApp').directive('domination',
                             // console.log(this);
                             // console.log(thisLink);
                         }
-                    });
+                });
 
                     // console.log(graph.links);
 
@@ -320,11 +320,12 @@ angular.module('indexApp').directive('domination',
                 });
             });
 
-            function setGroups(id, index, array){
-                // if(index%1000 === 0){console.log(this);}
-                svg.select('#did'+id)
-                    .classed(this,true);
-                d3.select(".dataset").select('#id'+id)
+            function setGroups(gNode, index, array){
+//                if(index%1000 === 0){
+//                	console.log(this);
+//                	console.log(gNode.id)}
+            	var id = gNode.id;
+                svg.select('#id'+id)
                 	.classed(this+"invis",true);
             }
 
