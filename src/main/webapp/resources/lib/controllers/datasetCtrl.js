@@ -1,5 +1,5 @@
 angular.module('indexApp').controller('datasetCtrl',
-    ['$scope', '$http', 'updateBoundaryGraph', function($scope,$http, updateBoundaryGraph){
+    ['$scope', '$http', '$rootScope', 'updateBoundaryGraph', function($scope,$http, $rootScope, updateBoundaryGraph){
 
 	// creates an event listener for redrawDataPoints event
     // when event is heard, resets currently marked outliers and marks the outliers
@@ -19,6 +19,7 @@ angular.module('indexApp').controller('datasetCtrl',
             }
         });
 
+        $rootScope.$broadcast('updateVisible');
 	});
 
 	// creates an event listener for the updateDelselected event
@@ -79,5 +80,6 @@ angular.module('indexApp').controller('datasetCtrl',
             }
         });
         console.log('Finished Constant Liers');
+        $rootScope.$broadcast('updateVisible');
 	});
 }]);
