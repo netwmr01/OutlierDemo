@@ -7,6 +7,7 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -26,11 +27,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import demo.dsrg.cs.wpi.edu.*;
 import detection.dsrg.cs.wpi.edu.KSortedDataPlain;
+import junit.framework.Test;
+import models.GroupResult;
 import models.OutlierID;
 import models.RCandidates;
 import models.SimpleData;
@@ -42,6 +46,7 @@ import util.dsrg.cs.wpi.edu.DominationManager;
 import util.dsrg.cs.wpi.edu.Pair;
 import util.dsrg.cs.wpi.edu.SortedCandidate;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 /** 
  * get http request from front-end and return computed dataset
@@ -55,8 +60,8 @@ public class MethodController {
 	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
-	String dataFile = "ocMitreDemo.txt";
-	String rootPath="src/main/resources/data";
+	static String dataFile = "ocMitreDemo.txt";
+	static String rootPath="src/main/resources/data";
 
 	/**
 	 * Instantiate the ONION Engine:userStudy
@@ -543,7 +548,7 @@ public class MethodController {
 	}
 
 	@RequestMapping("/getGroup")
-	public @ResponseBody String getGroup(@RequestParam(value="groupnumber")  String groupnumber){
+	public @ResponseBody LinkedHashMap<String, HashSet<OutlierID>> getGroup(@RequestParam(value="groupnumber")  String groupnumber){
 
 		ArrayList<Integer> index_list = new ArrayList<Integer>();
 		char[] numbers = groupnumber.toCharArray();
@@ -557,30 +562,29 @@ public class MethodController {
 
 		File data = new File(dataFile);
 		File dir = new File(data.getParent());
-		ArrayList<Byte> encoded = new ArrayList<Byte>();
+		LinkedHashMap<String, HashSet<OutlierID>> resulthm = new LinkedHashMap<String, HashSet<OutlierID>>();
 		while(ite.hasNext()){
 			groupNumber=ite.next();
 			File jsonFile=null;
 			System.out.println("The index is: "+groupNumber);
-
 			jsonFile=new File(dir.getAbsolutePath()+File.separator+"group"+groupNumber+".json");
-
 			System.out.println("Data File name throught data.getName(): "+data.getName());
 			System.out.println("Data File parent path throught data.getParent(): "+dir);
 			System.out.println("Json file path: "+jsonFile.getAbsolutePath());
+			
 			if(FileUploadController.getComputedFileListImpl(true).contains(data.getName())){
+				ObjectMapper mapper = new ObjectMapper();
+				LinkedHashMap<String, HashSet<OutlierID>> gr;
 				try {
-					byte[] buffer = Files.readAllBytes(Paths.get(jsonFile.toURI()));
-					for(Byte b: buffer){
-						encoded.add(b);
-					}
+					gr = mapper.readValue(jsonFile, new TypeReference<LinkedHashMap<String, HashSet<OutlierID>>>(){});
+					resulthm.putAll(gr);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
 			}
 		}
-		return encoded.toString();
+		return resulthm;
 	}
 
 
@@ -710,6 +714,11 @@ public class MethodController {
 		dataFile = originalFileName;
 		rootPath = originalRootPath; 
 		return fileNumber;
+	}
+	
+	static void changeFileName(String filename){
+		String foldername = FilenameUtils.removeExtension(filename);
+		dataFile=rootPath+File.separator+foldername+File.separator+filename;
 	}
 
 }

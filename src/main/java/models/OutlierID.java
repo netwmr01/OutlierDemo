@@ -5,11 +5,13 @@ package models;
  * @author Tommzy
  *
  */
-public class OutlierID {
-	final int id;
+public class OutlierID{
+	public int id;
 
 	public OutlierID(int id){
 		this.id=id;
+	}
+	public OutlierID() {
 	}
 
 	public int getID() {
@@ -25,7 +27,8 @@ public class OutlierID {
 		}
 	}
 	public int hashCode() {
-	    return this.id;
-	  }
+		return this.id;
+	}
 
+	
 }

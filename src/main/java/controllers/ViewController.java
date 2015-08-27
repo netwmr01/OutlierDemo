@@ -27,4 +27,10 @@ public class ViewController {
 	public String uploadView(){
 		return "uploadfiles";
 	}
+	
+	@RequestMapping("/custom")
+	public String customView(@RequestParam(value="filename") String filename){
+		MethodController.changeFileName(filename);
+		return "index";
+	}
 }
