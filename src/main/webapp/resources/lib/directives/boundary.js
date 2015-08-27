@@ -102,7 +102,8 @@ angular.module('indexApp').directive('boundary',
 
             svg.append('g')
                 .style("pointer-events", "all")
-                .classed('boundaryBackground',true);
+                .classed('boundaryBackground',true)
+				.attr('opacity', 1);
 
             // creates the clipping rectangle
             svg.append("clipPath")
