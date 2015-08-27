@@ -822,10 +822,10 @@ public class MethodController {
 	
 	
 	public static int preComputeAllFilesImpl(){
-		String originalFileName= dataFile;
-		String originalRootPath = rootPath;
+		String currentFileName= dataFile;
+		String currentRootPath = rootPath;
 		int fileNumber=0;
-		File directory = new File(rootPath);
+		File directory = new File(currentRootPath);
 		File[] fList = directory.listFiles();
 
 		dm = DominationManager.getInstance();
@@ -843,17 +843,17 @@ public class MethodController {
 					}
 				};
 				File[] result = f.listFiles(filter);
-				rootPath = f.getPath();
-				System.out.println("The rootPath changed to: "+rootPath);
+				currentRootPath = f.getPath();
+				System.out.println("The rootPath changed to: "+currentRootPath);
 				if(result.length!=0)
-					dataFile = f.listFiles(filter)[0].getAbsolutePath();
+					currentFileName = f.listFiles(filter)[0].getAbsolutePath();
 
 				if(FileUploadController.getComputedFileListImpl(false).contains(f.listFiles(filter)[0].getName())){
-					dm.setupAllGroups(dataFile);
+					dm.setupAllGroups(currentFileName);
 				}
 
 				for(i=0;i<4;i++){//check whether the gourp 0-3 files exists
-					dir=new File(rootPath);
+					dir=new File(currentRootPath);
 					df = new File(dir.getAbsolutePath()
 							+ File.separator + "group"+i+".json");
 					if(!df.exists()){
@@ -861,7 +861,7 @@ public class MethodController {
 						String json = null;
 
 						try {
-							System.out.println("About to Pre Compute: "+ dataFile);
+							System.out.println("About to Pre Compute: "+ currentFileName);
 							json = ow.writeValueAsString(getGroups(String.valueOf(i)));
 							BufferedOutputStream stream =
 									new BufferedOutputStream(new FileOutputStream(df));
@@ -880,14 +880,14 @@ public class MethodController {
 					}
 				}
 
-				dir = new File(rootPath);
+				dir = new File(currentRootPath);
 				df = new File(dir.getAbsoluteFile()+File.separator+"graph.json");
 				if(!df.exists()){
 					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 					String json = null;
 
 					try {
-						System.out.println("About to Pre Compute Graph of : "+ dataFile);
+						System.out.println("About to Pre Compute Graph of : "+ currentFileName);
 						json = ow.writeValueAsString(getGraphImpl());
 						BufferedOutputStream stream =
 								new BufferedOutputStream(new FileOutputStream(df));
@@ -905,14 +905,14 @@ public class MethodController {
 					}
 				}
 
-				dir = new File(rootPath);
+				dir = new File(currentRootPath);
 				df = new File(dir.getAbsoluteFile()+File.separator+"edges.json");
 				if(!df.exists()){
 					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 					String json = null;
 
 					try {
-						System.out.println("About to Pre Compute Edges of : "+ dataFile);
+						System.out.println("About to Pre Compute Edges of : "+ currentFileName);
 						json = ow.writeValueAsString(getAllEdgesImpl());
 						BufferedOutputStream stream =
 								new BufferedOutputStream(new FileOutputStream(df));
@@ -931,14 +931,14 @@ public class MethodController {
 				}
 
 
-				dir = new File(rootPath);
+				dir = new File(currentRootPath);
 				df = new File(dir.getAbsoluteFile()+File.separator+"nodes.json");
 				if(!df.exists()){
 					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 					String json = null;
 
 					try {
-						System.out.println("About to Pre Compute Nodes of : "+ dataFile);
+						System.out.println("About to Pre Compute Nodes of : "+ currentFileName);
 						json = ow.writeValueAsString(getAllNodesImpl());
 						BufferedOutputStream stream =
 								new BufferedOutputStream(new FileOutputStream(df));
@@ -960,8 +960,6 @@ public class MethodController {
 				fileNumber++;
 			}
 		}
-		dataFile = originalFileName;
-		rootPath = originalRootPath; 
 		return fileNumber;
 	}
 

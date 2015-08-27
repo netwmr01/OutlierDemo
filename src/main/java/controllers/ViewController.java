@@ -33,4 +33,8 @@ public class ViewController {
 		MethodController.changeFileName(filename);
 		return "index";
 	}
+	@RequestMapping("/aboutus")
+	public String aboutus(){
+		return "aboutus";
+	}
 }
