@@ -1,17 +1,12 @@
 package controllers;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.LinkedHashSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.servlet.annotation.MultipartConfig;
-
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -37,14 +32,20 @@ public class FileUploadController {
 		String name = null;
 		if (!file.isEmpty()) {
 			try {
+				
 				name = file.getOriginalFilename();
+				String foldername = FilenameUtils.removeExtension(name);
 				byte[] bytes = file.getBytes();
 				
 				File dir = new File(rootPath);
 				if (!dir.exists())
 					dir.mkdirs();
+				File serverFilePath = new File(dir.getAbsolutePath()
+						+ File.separator + foldername);
+				if (!serverFilePath.exists())
+					serverFilePath.mkdirs();
 				File serverFile = new File(dir.getAbsolutePath()
-						+ File.separator + name);
+						+ File.separator + foldername+File.separator+ name);
 
 				/**check the validity of the data fomart
 								Pattern p = Pattern.compile ("[0-9]+(,(0("+"\."+"[0-9]+))){2}#[0-9]+(\.[0-9]+){0,1}(,([0-9]+(\.[0-9]+){0,1}))*");
@@ -89,9 +90,17 @@ public class FileUploadController {
 		LinkedHashSet<String> fileSet = new LinkedHashSet<String>();
 		File directory = new File(rootPath);
 		File[] fList = directory.listFiles();
-		for(File f: fList){
+		for(final File f: fList){
 			if(f.isDirectory()){
-				fileSet.add(f.getName());
+				FileFilter filter =new FileFilter(){
+					public boolean accept(File file){
+							return file.getName().startsWith(f.getName());							
+					}
+				};
+				File[] result = f.listFiles(filter);
+				if(result.length!=0){
+					fileSet.add(result[0].getName());
+				}
 			}
 		}
 		

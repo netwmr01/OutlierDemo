@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -155,11 +154,11 @@ public class MethodController {
 		System.out.println("r: "+rMin+"~"+rMax);
 
 		//get raw data of constant outlier
-		Collection<SortedCandidate> rawConstantOutlier = UserStudy.getMethod1(kMin, rMax);
+		Collection<SortedCandidate> rawConstantOutlier = userStudy.getMethod1(kMin, rMax);
 
 		//get raw data of constant inlier, 
 		//then get difference of the outlier with the whole data plane
-		Collection<SortedCandidate> rawConstantInlier = UserStudy.getMethod1(kMax, rMin);
+		Collection<SortedCandidate> rawConstantInlier = userStudy.getMethod1(kMax, rMin);
 
 		Collection<OutlierID> constantOutlier = new ArrayList<OutlierID>();
 		ArrayList<OutlierID> minOutliers = new ArrayList<OutlierID>();
