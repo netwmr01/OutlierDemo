@@ -69,7 +69,7 @@ angular.module('indexApp').directive('domination',
             	.success(function(graph) {
 	                var linkg = svg.append("g")
 	                    .attr('class','links');
-	
+	                
 	                var link = linkg.selectAll(".link")
 	                    .data(graph.links)
 	                    .enter().append("line")
@@ -94,6 +94,9 @@ angular.module('indexApp').directive('domination',
 	                    .attr('id',function(d){ return 'did'+d.id;})
 	                    .attr('clip-path','url#clip3')
 	                    .on("mouseover",function(d){
+	                    	console.log("highlighting"+d.id);
+	                    	
+	                    	//gets all links with this node as a source or target
 	                        var source = d3.selectAll(".source"+d.id);
 	                        var target = d3.selectAll(".target"+d.id);
 	
@@ -105,7 +108,7 @@ angular.module('indexApp').directive('domination',
 	                                .attr("y1", this.getAttribute('y1'))
 	                                .attr("x2", this.getAttribute('x2'))
 	                                .attr("y2", this.getAttribute('y2'))
-	                                .attr("class","highlight");
+	                                .attr("class","link highlight");
 	                        });
 	                        target.each(function(d){
 	
@@ -114,16 +117,13 @@ angular.module('indexApp').directive('domination',
 	                                .attr("y1", this.getAttribute('y1'))
 	                                .attr("x2", this.getAttribute('x2'))
 	                                .attr("y2", this.getAttribute('y2'))
-	                                .attr("class","highlight");
+	                                .attr("class","link highlight");
 	                        });
-	                        if(d.id===32805){
-	                            console.log(source);
-	                            console.log(target);
-	                        }
 	
 	                    })
 	                    .on("mouseout",function(d){
-	                        d3.selectAll('.highlight')
+	                    	//removes all highlighted links
+	                        d3.selectAll('.link.highlight')
 	                            .remove();
 	                    });
 	
@@ -175,6 +175,7 @@ angular.module('indexApp').directive('domination',
 		                    console.log(groups);
 		                    for( var group in groups){
 		                        groups[group].forEach(setGroups, group);
+		                        
 		                        var groupg=nodeg.append('g')
 		                                        .attr('class','layer '+group);
 		
@@ -328,8 +329,8 @@ angular.module('indexApp').directive('domination',
 //                	console.log(this);
 //                	console.log(gNode.id)}
             	var id = gNode.id;
-                svg.select('#id'+id)
-                	.classed(this+"invis",true);
+                svg.select('#did'+id)
+                	.classed(this,true);
             }
 
         }

@@ -120,7 +120,7 @@ angular.module('indexApp').controller('boundaryCtrl',
         var boundaryY=scales.y.domain(domain.y);
         updateBoundaryGraph.setScales(boundaryX,boundaryY);
 
-        densityMatrix().createDensityMatrix();
+        densityMatrix.createDensityMatrix();
     };
 
     // deselects the currently selected boundary points and clears the boundary graph
