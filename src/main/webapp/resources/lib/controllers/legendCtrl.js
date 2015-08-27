@@ -1,5 +1,5 @@
 angular.module('indexApp').controller('legendCtrl',
-    ['$scope', '$http', 'legendSet', function($scope,$http,legendSet){
+    ['$scope', 'legendSet', function($scope,legendSet){
     	
 	 $scope.status = {
 	    isopen: false

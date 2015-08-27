@@ -124,15 +124,15 @@ angular.module('indexApp').directive('boundary',
                         .attr('height',0)
                         .classed('selectionRect', true);
 
-        // toggles shiftDown 
+        // toggles shiftDown
         d3.select('body')
             .on('keydown', function(){
-                if(d3.event.keyCode == 16){
+                if(d3.event.keyCode === 16){
                     shiftDown=  true;
                 }
             })
             .on('keyup', function(){
-                if(d3.event.keyCode == 16){
+                if(d3.event.keyCode === 16){
                     shiftDown = false;
                 }
             });

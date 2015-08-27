@@ -119,7 +119,7 @@ invisible{
     fill:green;
 }
 
-.highlight{
+.link.highlight{
     stroke: black;
     stroke-opacity: .6;
     stroke-width: 1px;
@@ -127,4 +127,10 @@ invisible{
 
 legend{
 	width:50%;
+}
+
+.dataPoint.highlight{
+    stroke-opacity:1;
+    stroke-width:2	px;
+    stroke:white;
 }

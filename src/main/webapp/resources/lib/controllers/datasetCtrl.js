@@ -1,5 +1,5 @@
 angular.module('indexApp').controller('datasetCtrl',
-    ['$scope', '$http', '$rootScope', 'updateBoundaryGraph', function($scope,$http, $rootScope, updateBoundaryGraph){
+    ['$scope', '$rootScope', 'updateBoundaryGraph', function($scope, $rootScope, updateBoundaryGraph){
 
 	// creates an event listener for redrawDataPoints event
     // when event is heard, resets currently marked outliers and marks the outliers
