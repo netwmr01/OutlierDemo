@@ -1,5 +1,5 @@
 angular.module('indexApp').controller('sliderCtrl',
-    ['$scope', '$http', 'updateKR', function($scope,$http, updateKR){
+    ['$scope', 'updateKR', function($scope, updateKR){
 
     //the k and r slider values
     $scope.kvalue=5;

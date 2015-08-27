@@ -1,6 +1,6 @@
 angular.module('indexApp').directive('dataplane',
-    ['$http','$rootScope','updateBoundaryGraph','densityMatrix', 'updateKR', 
-     function($http, $rootScope,updateBoundaryGraph,densityMatrix, updateKR){
+    ['$http','$rootScope','$window','updateBoundaryGraph','densityMatrix', 'updateKR', 
+     function($http, $rootScope,$window,updateBoundaryGraph,densityMatrix, updateKR){
 
     return{
         link: link,
@@ -12,6 +12,8 @@ angular.module('indexApp').directive('dataplane',
         /**
          * Created by Tommzy on 7/7/2015.
          */
+
+        
         var data = scope.data;
         var paneDimensions= d3.select('.right.paneContent').node().getBoundingClientRect();
         var margin = {top: 20, right: 40, bottom: 40, left: 40},
@@ -180,15 +182,40 @@ angular.module('indexApp').directive('dataplane',
                         .style("opacity", 0);
                 })
                 .on('click', function(d){
-                    // selects the point to be shown on boundary graph
-                    var clickedPoint = d3.select(this);
-                    var currentlySelected =clickedPoint.classed('selected');
-
-                    if(currentlySelected) clickedPoint.classed('deselected',true);
-                    clickedPoint.classed('selected',!currentlySelected);
-                    console.log('Selected Point');
-                    updateBoundaryGraph.update();
-
+                	if(d3.event.shiftKey){
+                		d3.select('.comarativeOutlierSource').classed("comparativeOutlierSource",false);
+                		d3.select(this).classed("comparativeOutlierSource",true);
+                		console.log(d)
+                		$http.get('http://localhost:8080/getComparativeOutliers?id='+d.point.id)
+                			.success(function(data){
+                				console.log(data);
+                				d3.selectAll('.highlight')
+                					.classed('highlight',false);
+                				
+                				
+                				var highlight = function(point){
+                					d3.select('#id'+point.id).classed('highlight',true);
+                				}
+                				
+                				for(var key in data){
+                					data[key].forEach(highlight);
+                				}
+                				console.log("done highlighting datapoints")
+                			})
+                			.error(function(){
+                				console.log("failed to get comparative outliers")
+                			});
+                	}
+                	else{
+                        // selects the point to be shown on boundary graph
+                		var clickedPoint = d3.select(this);
+	                    var currentlySelected =clickedPoint.classed('selected');
+	
+	                    if(currentlySelected) clickedPoint.classed('deselected',true);
+	                    clickedPoint.classed('selected',!currentlySelected);
+	                    console.log('Selected Point');
+	                    updateBoundaryGraph.update();
+                	}
                 });
             
             d3.json("resources/lib/sampleJSONs/getAllGroups.json", function(error, groups) {
