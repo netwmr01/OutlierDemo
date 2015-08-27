@@ -103,6 +103,9 @@ angular.module('indexApp').directive('dataplane',
         // load data
         $http.get("http://localhost:8080/getDataPlane")
 	        .success(function(data) {
+//	        	console.log(data.length);
+//	        	Array.prototype.push.apply(data, data);
+	        	console.log(data.length);
 	            densityMatrix.setData(data);
 	            console.log("Finish loading data plane values");
 	
@@ -223,6 +226,7 @@ angular.module('indexApp').directive('dataplane',
 		//	                	console.log(this);
 		//	                	console.log(gNode.id)}
 			              	var id = gNode.id;
+//			              	if(d3.select('#id'+id).size()===0) console.log(id);
 			                d3.select('#id'+id)
 			              		.classed(this+"invis",true);
 			              }
