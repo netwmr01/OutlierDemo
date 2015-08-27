@@ -25,18 +25,18 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class FileUploadController {
 	private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
-	String rootPath = "src/main/resources/data";
-	
+	static String rootPath = "src/main/resources/data";
+
 	@RequestMapping(value="/upload", method=RequestMethod.POST)
 	public @ResponseBody String handleFileUpload(@RequestParam("file") MultipartFile file){
 		String name = null;
 		if (!file.isEmpty()) {
 			try {
-				
+
 				name = file.getOriginalFilename();
 				String foldername = FilenameUtils.removeExtension(name);
 				byte[] bytes = file.getBytes();
-				
+
 				File dir = new File(rootPath);
 				if (!dir.exists())
 					dir.mkdirs();
@@ -47,7 +47,7 @@ public class FileUploadController {
 				File serverFile = new File(dir.getAbsolutePath()
 						+ File.separator + foldername+File.separator+ name);
 
-				/**check the validity of the data fomart
+				/**check the validity of the data fomart, currently don't need
 								Pattern p = Pattern.compile ("[0-9]+(,(0("+"\."+"[0-9]+))){2}#[0-9]+(\.[0-9]+){0,1}(,([0-9]+(\.[0-9]+){0,1}))*");
 
 								InputStream inputStream = file.getInputStream();
@@ -66,7 +66,7 @@ public class FileUploadController {
 								isr.close();
 								inputStream.close();
 				 **/
-				
+
 
 				BufferedOutputStream stream =
 						new BufferedOutputStream(new FileOutputStream(serverFile));
@@ -83,10 +83,14 @@ public class FileUploadController {
 			return "You failed to upload " + name + " because the file was empty.";
 		}
 	}
-	
-	
+
+
 	@RequestMapping(value="/getExistingFileList")
 	public @ResponseBody LinkedHashSet<String> getExistingFileList(){
+		return getFileList();
+	}
+
+	public LinkedHashSet<String> getFileList(){
 		LinkedHashSet<String> fileSet = new LinkedHashSet<String>();
 		File directory = new File(rootPath);
 		File[] fList = directory.listFiles();
@@ -94,7 +98,7 @@ public class FileUploadController {
 			if(f.isDirectory()){
 				FileFilter filter =new FileFilter(){
 					public boolean accept(File file){
-							return file.getName().startsWith(f.getName());							
+						return file.getName().startsWith(f.getName());							
 					}
 				};
 				File[] result = f.listFiles(filter);
@@ -103,10 +107,46 @@ public class FileUploadController {
 				}
 			}
 		}
-		
 		return fileSet;
 	}
+
+	@RequestMapping(value="/getComputedFileList")
+	public @ResponseBody LinkedHashSet<String> getComputedFileList(){
+		return getComputedFileListImpl(true);
+	}
 	
+	static public LinkedHashSet<String> getComputedFileListImpl(boolean isComputed){
+		LinkedHashSet<String> fileSet = new LinkedHashSet<String>();
+		File directory = new File(rootPath);
+		File[] fList = directory.listFiles();
+		for(final File f: fList){
+			if(f.isDirectory()){
+				FileFilter filter =new FileFilter(){
+					public boolean accept(File file){
+						return file.getName().startsWith("group");							
+					}
+				};
+				FileFilter dataSetNameFilter = new FileFilter(){
+					public boolean accept(File file){
+						return file.getName().startsWith(f.getName());							
+					}
+				};
+				File[] result = f.listFiles(filter);
+				File[] dataSetResult=f.listFiles(dataSetNameFilter);
+				if(result.length==4&&dataSetResult.length!=0&&isComputed){
+					fileSet.add(dataSetResult[0].getName());
+				}else{
+					System.out.println("Data file filtered get #: "
+							+dataSetResult.length
+							+"\n"
+							+"group#.json files #: "
+							+result.length);
+				}
+			}
+		}
+
+		return fileSet;
+	}
 	
 
 

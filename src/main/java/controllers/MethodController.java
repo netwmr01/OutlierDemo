@@ -538,7 +538,11 @@ public class MethodController {
 
 	@RequestMapping("/getGroup")
 	public @ResponseBody LinkedHashMap<String, HashSet<OutlierID>> getGroup(@RequestParam(value="groupnumber")  String groupnumber){
-
+		File data = new File(dataFile);
+		System.out.println("Data File name throught data.getName(): "+data.getName());
+		if(FileUploadController.getComputedFileListImpl(true).contains(data.getName())){
+//			return 
+		}
 		return getGroups(groupnumber);
 	}
 	
