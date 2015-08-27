@@ -1,5 +1,5 @@
 angular.module('indexApp').controller('boundaryCtrl',
-    ['$scope', '$window','updateBoundaryGraph', 'densityMatrix', function($scope,$window,updateBoundaryGraph, densityMatrix){
+    ['$scope', '$window','updateBoundaryGraph', 'updateKR', 'densityMatrix', function($scope,$window,updateBoundaryGraph, updateKR, densityMatrix){
 
 
     // creates an event listener for the updateBoundary event
@@ -104,6 +104,10 @@ angular.module('indexApp').controller('boundaryCtrl',
 
         //update the kr selector
         var krselctor =d3.select(".KRselector");
+        
+        //update the kr selector
+        updateKR.updateKR();
+        
         //updates the densityMatrix
         densityMatrix.createDensityMatrix([minx,maxx,miny,maxy]);
 
@@ -122,6 +126,7 @@ angular.module('indexApp').controller('boundaryCtrl',
         var boundaryY=scales.y.domain(domain.y);
         updateBoundaryGraph.setScales(boundaryX,boundaryY);
 
+        updateKR.updateKR();
         densityMatrix.createDensityMatrix();
     };
 

@@ -5,3 +5,5 @@
 *.bin
 *.bin
 *.class
+*.json
+bin/data/group0.json
