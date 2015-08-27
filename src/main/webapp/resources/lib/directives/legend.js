@@ -6,22 +6,14 @@ angular.module('indexApp').directive('legend',['legendSet', function(legendSet){
     };
 
     function link(scope,element,attr) {
-        var width = 300;
-        //legend items
-        var legends = [[
-            {class_name: 'outlier', actual_name: 'Outlier'},
-            {class_name: 'dataPoint', actual_name: 'Inlier'},
-            {class_name: 'constOut', actual_name: 'Constant Outlier'},
-            {class_name: 'constIn', actual_name: 'Constant Inlier'}
-        ]];
-        
-
+        //creates the legend svg
         var svg = d3.select('legend').append('svg')
             .attr("width", '100%')
             .attr("height", 40)
             .attr('class','legendSVG');
         
         // console.log("started creating legend");
+        //sets the default legend to veiw (outlierness)
         legendSet.updateLegend(0);
     }
 
