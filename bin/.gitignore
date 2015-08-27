@@ -1,6 +1,5 @@
-<<<<<<< HEAD
+/application.properties
 /controllers/
 /data/
-=======
->>>>>>> 05fb4b07dac7828340ae46fc63fa59c2f1c994fa
+/models/
 /templates/
