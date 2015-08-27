@@ -102,7 +102,9 @@ angular.module('indexApp').controller('boundaryCtrl',
         boundaryY.domain([miny,maxy]);
         updateBoundaryGraph.setScales(boundaryX,boundaryY);
 
-        //updates teh densityMatrix
+        //update the kr selector
+        var krselctor =d3.select(".KRselector");
+        //updates the densityMatrix
         densityMatrix.createDensityMatrix([minx,maxx,miny,maxy]);
 
         // svg.select(".x.axis").call(xAxis);
