@@ -63,7 +63,7 @@
             	Choose File<b class="caret"></b>
            	</a>
             <ul class="dropdown-menu" role="menu">
-              <li ng-repeat="file in files"><a href="#" ng-click="click(file)">{{file}}</a></li>
+              <li ng-repeat="file in files"><a ng-href="/custom?filename={{file}}" target="_self" ng-click="click(file)">{{file}}</a></li>
             </ul>
           </li>
         </ul>

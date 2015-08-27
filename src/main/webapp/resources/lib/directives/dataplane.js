@@ -211,7 +211,7 @@ angular.module('indexApp').directive('dataplane',
 	                	}
 	                });
 	            
-	            $http.get("localhost:8080/getGroup?groupnumber=0123")
+	            $http.get("http://localhost:8080/getGroup?groupnumber=0123")
 		            .success(function(groups) {
 		                // console.log(groups);
 		                console.log(groups);
