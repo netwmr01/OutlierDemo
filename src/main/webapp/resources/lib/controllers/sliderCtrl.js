@@ -17,6 +17,8 @@ angular.module('indexApp').controller('sliderCtrl',
         $scope.kvalue = args.k;
         $scope.rvalue = args.r;
     });
+    
+    $scope.updateKRValue();
 
 
 
