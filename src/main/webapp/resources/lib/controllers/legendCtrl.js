@@ -22,19 +22,19 @@ angular.module('indexApp').controller('legendCtrl',
 				 break;
 			 case 1:
 				 //change all dataPoints' group# class to group#invis where # is the group number
-				 d3.selectAll('.group0')
+				 d3.selectAll('.dataPoint.group0')
 				 	.classed('group0invis',true)
 				 	.classed('group0',false);
 
-				 d3.selectAll('.group1')
+				 d3.selectAll('.dataPoint.group1')
 				 	.classed('group1invis',true)
 				 	.classed('group1',false);
 
-				 d3.selectAll('.group2')
+				 d3.selectAll('.dataPoint.group2')
 				 	.classed('group2invis',true)
 				 	.classed('group2',false);
 
-				 d3.selectAll('.group3')
+				 d3.selectAll('.dataPoint.group3')
 				 	.classed('group3invis',true)
 				 	.classed('group3',false);
 				 break;
