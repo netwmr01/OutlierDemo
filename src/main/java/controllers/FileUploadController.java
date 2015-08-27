@@ -75,7 +75,8 @@ public class FileUploadController {
 
 				logger.info("Server File Location="
 						+ serverFile.getAbsolutePath());
-				return "You successfully uploaded " + name + "!";
+				MethodController.preComputeAllFilesImpl();
+				return "You successfully uploaded " + name + "! "+"Precomputation finished! ";
 			} catch (Exception e) {
 				return "You failed to upload " + name + " => " + e.getMessage();
 			}
@@ -151,19 +152,19 @@ public class FileUploadController {
 						return file.getName().startsWith("nodes");							
 					}
 				};
-				File[] result = f.listFiles(filter);
+				File[] groupResult = f.listFiles(filter);
 				File[] dataSetResult=f.listFiles(dataSetNameFilter);
 				File[] graphResult=f.listFiles(graphFilter);
 				File[] edgesResult=f.listFiles(edgesFilter);
 				File[] nodesResult=f.listFiles(nodesFilter);
 				boolean isQualified;
 				isQualified = isComputed? 
-						(result.length==4
+						(groupResult.length==4
 						&&graphResult.length==1
 						&&edgesResult.length==1
 						&&nodesResult.length==1
 						&&dataSetResult.length!=0):
-							((result.length!=4
+							((groupResult.length!=4
 							||graphResult.length!=1
 							||edgesResult.length!=1
 							||nodesResult.length!=1)
@@ -175,7 +176,7 @@ public class FileUploadController {
 									+dataSetResult.length
 									+"\n"
 									+"group#.json files #: "
-									+result.length);
+									+groupResult.length);
 						}
 			}
 		}

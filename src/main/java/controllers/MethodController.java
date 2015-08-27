@@ -505,7 +505,7 @@ public class MethodController {
 		return str;
 	}
 
-	public ArrayList<SimpleMapNode> getAllNodesImpl(){
+	public static ArrayList<SimpleMapNode> getAllNodesImpl(){
 		ArrayList<SimpleMapNode> nodes= new ArrayList<SimpleMapNode>();
 
 		DominationManager dm=null;
@@ -557,7 +557,7 @@ public class MethodController {
 		return str;
 	}
 
-	public ArrayList<SimplePair> getAllEdgesImpl(){
+	public static ArrayList<SimplePair> getAllEdgesImpl(){
 		DominationManager dm=null;
 		try{
 			dm = DominationManager.getInstance();
@@ -621,7 +621,7 @@ public class MethodController {
 
 	}
 
-	public HashMap<String,ArrayList<SimpleData>> getGraphImpl(){
+	public static HashMap<String,ArrayList<SimpleData>> getGraphImpl(){
 		HashMap<String,ArrayList<SimpleData>> hm = new HashMap<String,ArrayList<SimpleData>>();
 		ArrayList<SimpleData> nodes= new ArrayList<SimpleData>();
 		ArrayList<SimpleData> edges= new ArrayList<SimpleData>();
@@ -747,7 +747,7 @@ public class MethodController {
 	}
 
 
-	public LinkedHashMap<String, HashSet<OutlierID>> getGroups(String groupnumber){
+	public static LinkedHashMap<String, HashSet<OutlierID>> getGroups(String groupnumber){
 		//instantiate the DominationManager to start initialize the graph
 
 
@@ -817,6 +817,11 @@ public class MethodController {
 
 	@RequestMapping("/preComputeAllFiles")
 	public int preComputeAllFiles(){
+		return preComputeAllFilesImpl();
+	}
+	
+	
+	public static int preComputeAllFilesImpl(){
 		String originalFileName= dataFile;
 		String originalRootPath = rootPath;
 		int fileNumber=0;
