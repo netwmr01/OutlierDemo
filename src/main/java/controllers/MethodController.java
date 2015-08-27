@@ -7,7 +7,11 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,11 +63,11 @@ public class MethodController {
 	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
 	 */
 	public MethodController(){
-		dataFile=rootPath+File.separator+dataFile;
+		dataFile=rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile;
 		userStudy = new UserStudy(dataFile);
 		idDataPlane=getIdDataPlane();
 	}
-	
+
 	/**
 	 * Shrink MapOutlierCandidate to OutlierID object 
 	 * @return
@@ -80,11 +84,13 @@ public class MethodController {
 		return idDataPlane;
 
 	}
-	
+
 	@RequestMapping("/getDataPlane")
-	public @ResponseBody Set<MapOutlierCandidate> getDataPlane(@RequestParam(value="filename") String filename){
-		String foldername = FilenameUtils.removeExtension(filename);
-		dataFile=rootPath+File.separator+foldername+File.separator+filename;
+	public @ResponseBody Set<MapOutlierCandidate> getDataPlane(@RequestParam(value="filename",required= false ) String filename){
+		if(filename!=null){
+			String foldername = FilenameUtils.removeExtension(filename);
+			dataFile=rootPath+File.separator+foldername+File.separator+filename;
+		}
 
 		System.out.println("The path of the datafile:"+dataFile);
 		userStudy = new UserStudy(dataFile);
@@ -201,14 +207,14 @@ public class MethodController {
 		return results;
 	}
 
-	
+
 	@RequestMapping("/getComparativeOutliers")
 	public @ResponseBody HashMap<String,HashSet<OutlierID>> getComparativeOutliers(
 			@RequestParam(value="id",required= true) String id,
 			@RequestParam(value="kmin",required = false) String kmin,
 			@RequestParam(value="kmax", required = false) String kmax){
 		HashMap<String,HashSet<OutlierID>> result = new HashMap<String, HashSet<OutlierID>>();
-		
+
 		int kMin = kmin==null? 0 : Integer.valueOf(kmin);
 		int kMax = kmax==null? 9 : Integer.valueOf(kmax); 
 		ArrayList<List<SortedCandidate>> rawCoResult = new ArrayList<List<SortedCandidate>>();
@@ -218,7 +224,7 @@ public class MethodController {
 			if(!(counter>=kMin&&counter<=kMax)){
 				break;
 			}
-			
+
 			String tag = "k"+counter;
 			HashSet<OutlierID> set = new HashSet<OutlierID>();
 			for(SortedCandidate sc:s){
@@ -537,16 +543,47 @@ public class MethodController {
 	}
 
 	@RequestMapping("/getGroup")
-	public @ResponseBody LinkedHashMap<String, HashSet<OutlierID>> getGroup(@RequestParam(value="groupnumber")  String groupnumber){
-		File data = new File(dataFile);
-		System.out.println("Data File name throught data.getName(): "+data.getName());
-		if(FileUploadController.getComputedFileListImpl(true).contains(data.getName())){
-//			return 
+	public @ResponseBody String getGroup(@RequestParam(value="groupnumber")  String groupnumber){
+
+		ArrayList<Integer> index_list = new ArrayList<Integer>();
+		char[] numbers = groupnumber.toCharArray();
+		for (char c : numbers)
+		{
+			index_list.add(Integer.valueOf(Character.toString(c)));
 		}
-		return getGroups(groupnumber);
+
+		int groupNumber = 0; 
+		Iterator<Integer> ite = index_list.iterator();
+
+		File data = new File(dataFile);
+		File dir = new File(data.getParent());
+		ArrayList<Byte> encoded = new ArrayList<Byte>();
+		while(ite.hasNext()){
+			groupNumber=ite.next();
+			File jsonFile=null;
+			System.out.println("The index is: "+groupNumber);
+
+			jsonFile=new File(dir.getAbsolutePath()+File.separator+"group"+groupNumber+".json");
+
+			System.out.println("Data File name throught data.getName(): "+data.getName());
+			System.out.println("Data File parent path throught data.getParent(): "+dir);
+			System.out.println("Json file path: "+jsonFile.getAbsolutePath());
+			if(FileUploadController.getComputedFileListImpl(true).contains(data.getName())){
+				try {
+					byte[] buffer = Files.readAllBytes(Paths.get(jsonFile.toURI()));
+					for(Byte b: buffer){
+						encoded.add(b);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return encoded.toString();
 	}
-	
-	
+
+
 	public LinkedHashMap<String, HashSet<OutlierID>> getGroups(String groupnumber){
 		//instantiate the DominationManager to start initialize the graph
 
@@ -564,7 +601,7 @@ public class MethodController {
 		{
 			index_list.add(Integer.valueOf(Character.toString(c)));
 		}
-		
+
 		int groupNumber = 0; 
 		Iterator<MapOutlierCandidate> mocIte = null;
 		Iterator<Integer> ite = index_list.iterator();
@@ -608,11 +645,11 @@ public class MethodController {
 			String key="group"+groupNumber;
 			hm.put(key,hs);
 		}
-		
+
 		return hm;
 	}
 
-	
+
 	@RequestMapping("/preComputeAllFiles")
 	public int preComputeAllFiles(){
 		String originalFileName= dataFile;
@@ -626,10 +663,10 @@ public class MethodController {
 				int i;
 				File dir;
 				File df;
-				
+
 				FileFilter filter =new FileFilter(){
 					public boolean accept(File file){
-							return file.getName().startsWith(f.getName());							
+						return file.getName().startsWith(f.getName());							
 					}
 				};
 				File[] result = f.listFiles(filter);
@@ -638,9 +675,9 @@ public class MethodController {
 				if(result.length!=0)
 					dataFile = f.listFiles(filter)[0].getAbsolutePath();
 				System.out.println("About to Pre Compute: "+ dataFile);
-				
 
-				
+
+
 				for(i=0;i<4;i++){//check whether the gourp 0-3 files exists
 					dir=new File(rootPath);
 					df = new File(dir.getAbsolutePath()
