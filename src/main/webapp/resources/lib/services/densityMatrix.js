@@ -65,7 +65,6 @@ angular.module('indexApp').factory('densityMatrix',
 
 	function parseDensityData(data){
 		var rValues = {};
-		// console.log('JSON kSortedList');
 		console.log(data);
 		for(var key in data){
 			var kValue = key.slice(1)-1;
