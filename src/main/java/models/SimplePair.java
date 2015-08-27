@@ -7,4 +7,8 @@ public class SimplePair implements SimpleData{
 		this.source=source;
 		this.target=target;
 	}
+	
+	public SimplePair(){
+		
+	}
 }

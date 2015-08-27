@@ -9,4 +9,8 @@ public class SimpleMapNode implements SimpleData{
 		this.lat=lat;
 		this.lon=lon;
 	}
+	
+	public SimpleMapNode(){
+		
+	}
 }

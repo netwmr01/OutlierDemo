@@ -114,12 +114,12 @@ public class FileUploadController {
 	public @ResponseBody LinkedHashSet<String> getComputedFileList(){
 		return getComputedFileListImpl(true);
 	}
-	
+
 	@RequestMapping(value="/getNotComputedFileList")
 	public @ResponseBody LinkedHashSet<String> getNotComputedFileList(){
 		return getComputedFileListImpl(false);
 	}
-	
+
 	static public LinkedHashSet<String> getComputedFileListImpl(boolean isComputed){
 		LinkedHashSet<String> fileSet = new LinkedHashSet<String>();
 		File directory = new File(rootPath);
@@ -136,26 +136,53 @@ public class FileUploadController {
 						return file.getName().startsWith(f.getName());							
 					}
 				};
+				FileFilter graphFilter = new FileFilter(){
+					public boolean accept(File file){
+						return file.getName().startsWith("graph");							
+					}
+				};
+				FileFilter edgesFilter = new FileFilter(){
+					public boolean accept(File file){
+						return file.getName().startsWith("edges");							
+					}
+				};
+				FileFilter nodesFilter = new FileFilter(){
+					public boolean accept(File file){
+						return file.getName().startsWith("nodes");							
+					}
+				};
 				File[] result = f.listFiles(filter);
 				File[] dataSetResult=f.listFiles(dataSetNameFilter);
+				File[] graphResult=f.listFiles(graphFilter);
+				File[] edgesResult=f.listFiles(edgesFilter);
+				File[] nodesResult=f.listFiles(nodesFilter);
 				boolean isQualified;
-				isQualified = isComputed? (result.length==4&&dataSetResult.length!=0):
-					(result.length!=4&&dataSetResult.length!=0);
-				if(isQualified){
-					fileSet.add(dataSetResult[0].getName());
-				}else{
-					System.out.println("Data file filtered get #: "
-							+dataSetResult.length
-							+"\n"
-							+"group#.json files #: "
-							+result.length);
-				}
+				isQualified = isComputed? 
+						(result.length==4
+						&&graphResult.length==1
+						&&edgesResult.length==1
+						&&nodesResult.length==1
+						&&dataSetResult.length!=0):
+							((result.length!=4
+							||graphResult.length!=1
+							||edgesResult.length!=1
+							||nodesResult.length!=1)
+							&&dataSetResult.length!=0);
+						if(isQualified){
+							fileSet.add(dataSetResult[0].getName());
+						}else{
+							System.out.println("!!!Data file filtered get #: "
+									+dataSetResult.length
+									+"\n"
+									+"group#.json files #: "
+									+result.length);
+						}
 			}
 		}
 
 		return fileSet;
 	}
-	
+
 
 
 }

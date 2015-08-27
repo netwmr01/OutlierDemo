@@ -7,12 +7,9 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,13 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import demo.dsrg.cs.wpi.edu.*;
+import demo.dsrg.cs.wpi.edu.UserStudy;
 import detection.dsrg.cs.wpi.edu.KSortedDataPlain;
-import junit.framework.Test;
-import models.GroupResult;
 import models.OutlierID;
 import models.RCandidates;
 import models.SimpleData;
@@ -45,8 +43,6 @@ import openmap.dsrg.cs.wpi.edu.MapOutlierCandidate;
 import util.dsrg.cs.wpi.edu.DominationManager;
 import util.dsrg.cs.wpi.edu.Pair;
 import util.dsrg.cs.wpi.edu.SortedCandidate;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 
 /** 
  * get http request from front-end and return computed dataset
@@ -55,7 +51,7 @@ import org.apache.commons.io.IOUtils;
  */
 @RestController
 public class MethodController {
-	DominationManager dm;
+	static DominationManager dm;
 	UserStudy userStudy;//get the instance of the userStudy interface 
 	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
@@ -118,7 +114,7 @@ public class MethodController {
 		System.out.println("R value getted"+r);
 
 		//get the raw data from the ONION engine
-		Collection<SortedCandidate> rawResult = UserStudy.getMethod1(intk, doubler);
+		Collection<SortedCandidate> rawResult = userStudy.getMethod1(intk, doubler);
 		//Instantiate another result set that only contains ID
 		Collection<OutlierID> result = new ArrayList<OutlierID>(); 
 
@@ -255,7 +251,7 @@ public class MethodController {
 		int r=Integer.valueOf(rvalue);
 
 		//get raw data
-		Collection<SortedCandidate> rawConstantOutlier = UserStudy.getMethod1(k, r);
+		Collection<SortedCandidate> rawConstantOutlier = userStudy.getMethod1(k, r);
 
 		Collection<OutlierID> currentOutliers = new ArrayList<OutlierID>();
 		Collection<OutlierID> currentInliers = new ArrayList<OutlierID>();
@@ -389,13 +385,56 @@ public class MethodController {
 
 
 	@RequestMapping("/getDominationGroups")
-	public @ResponseBody HashMap<String,ArrayList<Integer>> getDominationGroups(){
+	public @ResponseBody LinkedHashMap<String,ArrayList<Integer>> getDominationGroups(){
+		String groupnumber="123";
+		ArrayList<Integer> index_list = new ArrayList<Integer>();
+		char[] numbers = groupnumber.toCharArray();
+		for (char c : numbers)
+		{
+			index_list.add(Integer.valueOf(Character.toString(c)));
+		}
 
+		int groupNumber = 0; 
+		Iterator<Integer> ite = index_list.iterator();
 
+		File data = new File(dataFile);
+		File dir = new File(data.getParent());
+		LinkedHashMap<String, ArrayList<Integer>> resulthm = new LinkedHashMap<String, ArrayList<Integer>>();
+		while(ite.hasNext()){
+			groupNumber=ite.next();
+			File jsonFile=null;
+			System.out.println("The index is: "+groupNumber);
+			jsonFile=new File(dir.getAbsolutePath()+File.separator+"group"+groupNumber+".json");
+			System.out.println("Data File name throught data.getName(): "+data.getName());
+			System.out.println("Data File parent path throught data.getParent(): "+dir);
+			System.out.println("Json file path: "+jsonFile.getAbsolutePath());
 
+			if(FileUploadController.getComputedFileListImpl(true).contains(data.getName())){
+				ObjectMapper mapper = new ObjectMapper();
+				LinkedHashMap<String, HashSet<OutlierID>> gr;
+				try {
+					gr = mapper.readValue(jsonFile, new TypeReference<LinkedHashMap<String, HashSet<OutlierID>>>(){});
+					HashSet<OutlierID> hs = gr.get("group"+groupNumber);
+					ArrayList<Integer> i = new ArrayList<Integer>();
+					for(OutlierID id: hs){
+						int oid = id.getID();
+						i.add(oid);
+					}
+					resulthm.put("group"+groupNumber,i);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
+		return resulthm;
+//		return getDominationGroupsImpl();
+	}
+
+	public HashMap<String,ArrayList<Integer>> getDominationGroupsImpl(){
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance(dataFile);
+			dm = DominationManager.getInstance();
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -438,12 +477,40 @@ public class MethodController {
 
 
 	@RequestMapping("/getAllNodes")
-	public @ResponseBody ArrayList<SimpleMapNode> getAllNodes(){
+	public @ResponseBody String getAllNodes(){
+
+		File data = new File(dataFile);
+		File dir = new File(data.getParent());
+		HashMap<String,ArrayList<SimpleData>> hs = new HashMap<String,ArrayList<SimpleData>>();
+		if(FileUploadController.getComputedFileListImpl(false).contains(data.getName())){
+			System.out.println("About to compute all files");
+			preComputeAllFiles();
+		}
+		File jsonFile=null;
+		jsonFile=new File(dir.getAbsolutePath()+File.separator+"nodes"+".json");
+		System.out.println("Data File name throught data.getName(): "+data.getName());
+		System.out.println("Data File parent path throught data.getParent(): "+dir);
+		System.out.println("Json file path: "+jsonFile.getAbsolutePath());
+		HashMap<String,ArrayList<SimpleData>> gr=null;
+
+
+		String str = null;
+		try {
+			str = new String(Files.readAllBytes(jsonFile.toPath()),StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return str;
+	}
+
+	public ArrayList<SimpleMapNode> getAllNodesImpl(){
 		ArrayList<SimpleMapNode> nodes= new ArrayList<SimpleMapNode>();
 
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance(dataFile);
+			dm = DominationManager.getInstance();
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -465,11 +532,35 @@ public class MethodController {
 	}
 
 	@RequestMapping("/getAllEdges")
-	public @ResponseBody ArrayList<SimplePair> getAllEdges(){
+	public @ResponseBody String getAllEdges(){
+		File data = new File(dataFile);
+		File dir = new File(data.getParent());
+		HashMap<String,ArrayList<SimpleData>> hs = new HashMap<String,ArrayList<SimpleData>>();
+		if(FileUploadController.getComputedFileListImpl(false).contains(data.getName())){
+			System.out.println("About to compute all files");
+			preComputeAllFiles();
+		}
+		File jsonFile=null;
+		jsonFile=new File(dir.getAbsolutePath()+File.separator+"edges"+".json");
+		System.out.println("Data File name throught data.getName(): "+data.getName());
+		System.out.println("Data File parent path throught data.getParent(): "+dir);
+		System.out.println("Json file path: "+jsonFile.getAbsolutePath());
+		HashMap<String,ArrayList<SimpleData>> gr=null;
+		String str = null;
+		try {
+			str = new String(Files.readAllBytes(jsonFile.toPath()),StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+		return str;
+	}
+
+	public ArrayList<SimplePair> getAllEdgesImpl(){
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance(dataFile);
+			dm = DominationManager.getInstance();
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -486,8 +577,51 @@ public class MethodController {
 	}
 
 	@RequestMapping("/getGraph")
-	public @ResponseBody HashMap<String,ArrayList<SimpleData>> getGraph(){
+	public @ResponseBody String getGraph(){
 
+		File data = new File(dataFile);
+		File dir = new File(data.getParent());
+		HashMap<String,ArrayList<SimpleData>> hs = new HashMap<String,ArrayList<SimpleData>>();
+		if(FileUploadController.getComputedFileListImpl(false).contains(data.getName())){
+			System.out.println("About to compute all files");
+			preComputeAllFiles();
+		}
+		File jsonFile=null;
+		jsonFile=new File(dir.getAbsolutePath()+File.separator+"graph"+".json");
+		System.out.println("Data File name throught data.getName(): "+data.getName());
+		System.out.println("Data File parent path throught data.getParent(): "+dir);
+		System.out.println("Json file path: "+jsonFile.getAbsolutePath());
+		HashMap<String,ArrayList<SimpleData>> gr=null;
+		//		if(FileUploadController.getComputedFileListImpl(true).contains(data.getName())){
+		//			ObjectMapper mapper = new ObjectMapper();
+		//			mapper.enableDefaultTyping();
+		//			mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
+		//			SimpleModule sm=new SimpleModule();
+		//			sm.addAbstractTypeMapping(SimpleData.class, SimpleMapNode.class);
+		//			sm.addAbstractTypeMapping(SimpleData.class, SimplePair.class);
+		//			mapper.registerModule(sm);
+		//			
+		//			try {
+		//				gr = mapper.readValue(jsonFile, new TypeReference<HashMap<String,ArrayList<SimpleData>>>(){});
+		//			} catch (IOException e) {
+		//				e.printStackTrace();
+		//			}
+		//
+		//		}
+
+		String str = null;
+		try {
+			str = new String(Files.readAllBytes(jsonFile.toPath()),StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return str;
+
+	}
+
+	public HashMap<String,ArrayList<SimpleData>> getGraphImpl(){
 		HashMap<String,ArrayList<SimpleData>> hm = new HashMap<String,ArrayList<SimpleData>>();
 		ArrayList<SimpleData> nodes= new ArrayList<SimpleData>();
 		ArrayList<SimpleData> edges= new ArrayList<SimpleData>();
@@ -495,7 +629,7 @@ public class MethodController {
 		//instantiate the DominationManager to start initialize the graph
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance(dataFile);
+			dm = DominationManager.getInstance();
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -524,26 +658,51 @@ public class MethodController {
 		}
 		hm.put("links", edges);
 		return hm;
+
 	}
 
 	@RequestMapping("/getNonDominatePoints")
 	public @ResponseBody HashSet<OutlierID> getNonDominatePoints(){
 
 		//instantiate the DominationManager to start initialize the graph
+		File data = new File(dataFile);
+		File dir = new File(data.getParent());
 		HashSet<OutlierID> hs = new HashSet<OutlierID>();
-		DominationManager dm=null;
-		try{
-			dm = DominationManager.getInstance(dataFile);
-
-		}catch(Exception e){
-			System.out.println(e);
+		if(FileUploadController.getComputedFileListImpl(false).contains(data.getName())){
+			System.out.println("About to compute all files");
+			preComputeAllFiles();
 		}
+		File jsonFile=null;
+		jsonFile=new File(dir.getAbsolutePath()+File.separator+"group0"+".json");
+		System.out.println("Data File name throught data.getName(): "+data.getName());
+		System.out.println("Data File parent path throught data.getParent(): "+dir);
+		System.out.println("Json file path: "+jsonFile.getAbsolutePath());
 
-		Iterator<MapOutlierCandidate> ite = dm.getNonDominatePoints().iterator();
-		while(ite.hasNext()){
-			hs.add(new OutlierID(Integer.valueOf(ite.next().n.getID())));
+		if(FileUploadController.getComputedFileListImpl(true).contains(data.getName())){
+			ObjectMapper mapper = new ObjectMapper();
+			LinkedHashMap<String, HashSet<OutlierID>> gr;
+			try {
+				gr = mapper.readValue(jsonFile, new TypeReference<LinkedHashMap<String, HashSet<OutlierID>>>(){});
+				hs=gr.get("group0");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
-
+		//		HashSet<OutlierID> hs = new HashSet<OutlierID>();
+		//		DominationManager dm=null;
+		//		try{
+		//			dm = DominationManager.getInstance(dataFile);
+		//
+		//		}catch(Exception e){
+		//			System.out.println(e);
+		//		}
+		//
+		//		Iterator<MapOutlierCandidate> ite = dm.getNonDominatePoints().iterator();
+		//		while(ite.hasNext()){
+		//			hs.add(new OutlierID(Integer.valueOf(ite.next().n.getID())));
+		//		}
+		//
 		return hs;
 	}
 
@@ -571,7 +730,7 @@ public class MethodController {
 			System.out.println("Data File name throught data.getName(): "+data.getName());
 			System.out.println("Data File parent path throught data.getParent(): "+dir);
 			System.out.println("Json file path: "+jsonFile.getAbsolutePath());
-			
+
 			if(FileUploadController.getComputedFileListImpl(true).contains(data.getName())){
 				ObjectMapper mapper = new ObjectMapper();
 				LinkedHashMap<String, HashSet<OutlierID>> gr;
@@ -593,7 +752,7 @@ public class MethodController {
 
 
 		try{
-			dm = DominationManager.getInstance(dataFile);
+			dm = DominationManager.getInstance();
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -650,6 +809,8 @@ public class MethodController {
 			hm.put(key,hs);
 		}
 
+
+
 		return hm;
 	}
 
@@ -661,6 +822,9 @@ public class MethodController {
 		int fileNumber=0;
 		File directory = new File(rootPath);
 		File[] fList = directory.listFiles();
+
+		dm = DominationManager.getInstance();
+
 		for(final File f: fList){
 			if(f.isDirectory()){
 				File[] files = f.listFiles();
@@ -678,9 +842,10 @@ public class MethodController {
 				System.out.println("The rootPath changed to: "+rootPath);
 				if(result.length!=0)
 					dataFile = f.listFiles(filter)[0].getAbsolutePath();
-				System.out.println("About to Pre Compute: "+ dataFile);
 
-
+				if(FileUploadController.getComputedFileListImpl(false).contains(f.listFiles(filter)[0].getName())){
+					dm.setupAllGroups(dataFile);
+				}
 
 				for(i=0;i<4;i++){//check whether the gourp 0-3 files exists
 					dir=new File(rootPath);
@@ -691,6 +856,7 @@ public class MethodController {
 						String json = null;
 
 						try {
+							System.out.println("About to Pre Compute: "+ dataFile);
 							json = ow.writeValueAsString(getGroups(String.valueOf(i)));
 							BufferedOutputStream stream =
 									new BufferedOutputStream(new FileOutputStream(df));
@@ -708,6 +874,84 @@ public class MethodController {
 						}
 					}
 				}
+
+				dir = new File(rootPath);
+				df = new File(dir.getAbsoluteFile()+File.separator+"graph.json");
+				if(!df.exists()){
+					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+					String json = null;
+
+					try {
+						System.out.println("About to Pre Compute Graph of : "+ dataFile);
+						json = ow.writeValueAsString(getGraphImpl());
+						BufferedOutputStream stream =
+								new BufferedOutputStream(new FileOutputStream(df));
+						stream.write(json.getBytes());
+						stream.close();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+				dir = new File(rootPath);
+				df = new File(dir.getAbsoluteFile()+File.separator+"edges.json");
+				if(!df.exists()){
+					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+					String json = null;
+
+					try {
+						System.out.println("About to Pre Compute Edges of : "+ dataFile);
+						json = ow.writeValueAsString(getAllEdgesImpl());
+						BufferedOutputStream stream =
+								new BufferedOutputStream(new FileOutputStream(df));
+						stream.write(json.getBytes());
+						stream.close();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+
+				dir = new File(rootPath);
+				df = new File(dir.getAbsoluteFile()+File.separator+"nodes.json");
+				if(!df.exists()){
+					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+					String json = null;
+
+					try {
+						System.out.println("About to Pre Compute Nodes of : "+ dataFile);
+						json = ow.writeValueAsString(getAllNodesImpl());
+						BufferedOutputStream stream =
+								new BufferedOutputStream(new FileOutputStream(df));
+						stream.write(json.getBytes());
+						stream.close();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+
 				fileNumber++;
 			}
 		}
@@ -715,10 +959,12 @@ public class MethodController {
 		rootPath = originalRootPath; 
 		return fileNumber;
 	}
-	
+
 	static void changeFileName(String filename){
 		String foldername = FilenameUtils.removeExtension(filename);
 		dataFile=rootPath+File.separator+foldername+File.separator+filename;
+		if(FileUploadController.getComputedFileListImpl(false).contains(filename))
+			dm.setupAllGroups(dataFile);
 	}
 
 }
