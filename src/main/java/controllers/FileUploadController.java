@@ -115,6 +115,11 @@ public class FileUploadController {
 		return getComputedFileListImpl(true);
 	}
 	
+	@RequestMapping(value="/getNotComputedFileList")
+	public @ResponseBody LinkedHashSet<String> getNotComputedFileList(){
+		return getComputedFileListImpl(false);
+	}
+	
 	static public LinkedHashSet<String> getComputedFileListImpl(boolean isComputed){
 		LinkedHashSet<String> fileSet = new LinkedHashSet<String>();
 		File directory = new File(rootPath);
@@ -133,7 +138,10 @@ public class FileUploadController {
 				};
 				File[] result = f.listFiles(filter);
 				File[] dataSetResult=f.listFiles(dataSetNameFilter);
-				if(result.length==4&&dataSetResult.length!=0&&isComputed){
+				boolean isQualified;
+				isQualified = isComputed? (result.length==4&&dataSetResult.length!=0):
+					(result.length!=4&&dataSetResult.length!=0);
+				if(isQualified){
 					fileSet.add(dataSetResult[0].getName());
 				}else{
 					System.out.println("Data file filtered get #: "
