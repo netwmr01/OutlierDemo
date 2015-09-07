@@ -45,15 +45,16 @@ angular.module('indexApp').controller('datasetCtrl',
         var constOut = args.data[0];
         var constIn = args.data[1];
 
-        // console.log(constOut);
+        console.log(constOut);
         console.log('starting constant outlier');
         
         //reset current constant outliers
-        d3.select('.dataPoint.constOut')
-            .classed('constOut',false);
+		d3.selectAll('.dataPoint.constOut')
+            .classed('constOut',false)
 
         // sets const out
-        constOut.forEach(function(element){
+        constOut.forEach(function(element, index){
+//        	if(index%1000) console.log(element);
             var sPoint = d3.selectAll('#id'+element.id.toString());
             // console.log(sPoint);
             if(sPoint){
@@ -67,7 +68,7 @@ angular.module('indexApp').controller('datasetCtrl',
         // console.log(constIn.length);
 
         // reset constIn
-        d3.select('.dataPoint.constIn')
+        d3.selectAll('.dataPoint .constIn')
             .classed('constIn',false);
 
         // sets constIn
