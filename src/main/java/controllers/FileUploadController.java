@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * This is an controller to get file from front-end
- * 
+ * Contains all methods handle file upload, file scan
  * @author Hui Zheng
  *
  */
@@ -54,27 +54,6 @@ public class FileUploadController {
 					serverFilePath.mkdirs();
 				File serverFile = new File(dir.getAbsolutePath()
 						+ File.separator + foldername+File.separator+ name);
-
-				/**check the validity of the data fomart, currently don't need
-								Pattern p = Pattern.compile ("[0-9]+(,(0("+"\."+"[0-9]+))){2}#[0-9]+(\.[0-9]+){0,1}(,([0-9]+(\.[0-9]+){0,1}))*");
-
-								InputStream inputStream = file.getInputStream();
-								InputStreamReader isr = new InputStreamReader (inputStream);
-								BufferedReader buf = new BufferedReader (isr);
-								String str = null;
-								while ((str = buf.readLine ()) != null) 
-								{
-									//	Matcher m = p.matcher (str);
-									if(str.matches("[0-9]+(,(0(\.[0-9]+))){2}#[0-9]+(\.[0-9]+){0,1}(,([0-9]+(\.[0-9]+){0,1}))*")){
-										return "The data in file"+name+ "is not valid"; 
-									}
-
-								} 
-								buf.close();
-								isr.close();
-								inputStream.close();
-				 **/
-
 
 				BufferedOutputStream stream =
 						new BufferedOutputStream(new FileOutputStream(serverFile));

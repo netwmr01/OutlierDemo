@@ -46,6 +46,13 @@ import util.dsrg.cs.wpi.edu.SortedCandidate;
 
 /** 
  * get http request from front-end and return computed dataset
+ * Contains methods that:
+ * 1. Communicating with ONION engine
+ * 2. Logic layer computation that take http request and return respond to front-end
+ * 3. Switch current dataset or datafile that user working on
+ * 4. TBD]
+ * 
+ * Attention: the default data file is ocMitreDemo(data.ocMitreDemo.ocMitreDemo.txt)
  * @author Hui Zheng
  * 
  */
