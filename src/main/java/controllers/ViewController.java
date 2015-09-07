@@ -28,11 +28,20 @@ public class ViewController {
 		return "uploadfiles";
 	}
 	
+	/**
+	 * refreash the whole index page and load the new dataplane
+	 * @param filename
+	 * @return
+	 */
 	@RequestMapping("/custom")
 	public String customView(@RequestParam(value="filename") String filename){
 		MethodController.changeFileName(filename);
 		return "index";
 	}
+	/**
+	 * give the aboutus page
+	 * @return
+	 */
 	@RequestMapping("/aboutus")
 	public String aboutus(){
 		return "aboutus";

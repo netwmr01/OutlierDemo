@@ -86,6 +86,11 @@ public class MethodController {
 
 	}
 
+	/** 
+	 * return the entire data plane to front end
+	 * @param filename
+	 * @return
+	 */
 	@RequestMapping("/getDataPlane")
 	public @ResponseBody Set<MapOutlierCandidate> getDataPlane(@RequestParam(value="filename",required= false ) String filename){
 		if(filename!=null){
@@ -209,6 +214,13 @@ public class MethodController {
 	}
 
 
+	/**take a range kmin-kmax and an ID 
+	 * Compute the more outlierness point to the ID.
+	 * @param id
+	 * @param kmin
+	 * @param kmax
+	 * @return
+	 */
 	@RequestMapping("/getComparativeOutliers")
 	public @ResponseBody HashMap<String,HashSet<OutlierID>> getComparativeOutliers(
 			@RequestParam(value="id",required= true) String id,
@@ -327,7 +339,7 @@ public class MethodController {
 
 
 	/**
-	 * given a specific range of k r range, get an 
+	 * given a specific range of k r range, get the K sortedList
 	 * @param kmin
 	 * @param kmax
 	 * @param rmin
@@ -384,6 +396,10 @@ public class MethodController {
 	}
 
 
+	/**
+	 * return all 1,2,3 groups
+	 * @return
+	 */
 	@RequestMapping("/getDominationGroups")
 	public @ResponseBody LinkedHashMap<String,ArrayList<Integer>> getDominationGroups(){
 		String groupnumber="123";
@@ -431,6 +447,10 @@ public class MethodController {
 //		return getDominationGroupsImpl();
 	}
 
+	/**
+	 * the implementation of get all groups 1,2,3
+	 * @return HashMap of <groupnumber, ArrayList of id>
+	 */
 	public HashMap<String,ArrayList<Integer>> getDominationGroupsImpl(){
 		DominationManager dm=null;
 		try{
@@ -476,6 +496,10 @@ public class MethodController {
 	}
 
 
+	
+	/**
+	 * @return all nodes of the graph depends on currents dataplane
+	 */
 	@RequestMapping("/getAllNodes")
 	public @ResponseBody String getAllNodes(){
 
@@ -505,6 +529,10 @@ public class MethodController {
 		return str;
 	}
 
+	/** The impl of getAllNodes 
+	 * for inneer calling use
+	 * @return
+	 */
 	public static ArrayList<SimpleMapNode> getAllNodesImpl(){
 		ArrayList<SimpleMapNode> nodes= new ArrayList<SimpleMapNode>();
 
@@ -531,6 +559,10 @@ public class MethodController {
 		return nodes;
 	}
 
+	/**
+	 * 
+	 * @return all edges of given graph
+	 */
 	@RequestMapping("/getAllEdges")
 	public @ResponseBody String getAllEdges(){
 		File data = new File(dataFile);
@@ -557,6 +589,10 @@ public class MethodController {
 		return str;
 	}
 
+	/** 
+	 * the implementation of getAllEdges for inner call use
+	 * @return
+	 */
 	public static ArrayList<SimplePair> getAllEdgesImpl(){
 		DominationManager dm=null;
 		try{
@@ -576,6 +612,10 @@ public class MethodController {
 		return edges;
 	}
 
+	/**
+	 * read the precomputed graph file and return it to front end in a string
+	 * @return the current graph
+	 */
 	@RequestMapping("/getGraph")
 	public @ResponseBody String getGraph(){
 
@@ -621,6 +661,10 @@ public class MethodController {
 
 	}
 
+	/**
+	 * Compute the graph
+	 * @return
+	 */
 	public static HashMap<String,ArrayList<SimpleData>> getGraphImpl(){
 		HashMap<String,ArrayList<SimpleData>> hm = new HashMap<String,ArrayList<SimpleData>>();
 		ArrayList<SimpleData> nodes= new ArrayList<SimpleData>();
@@ -661,6 +705,9 @@ public class MethodController {
 
 	}
 
+	/**return the group 0 to the front end
+	 * @return
+	 */
 	@RequestMapping("/getNonDominatePoints")
 	public @ResponseBody HashSet<OutlierID> getNonDominatePoints(){
 
@@ -706,6 +753,12 @@ public class MethodController {
 		return hs;
 	}
 
+	
+	/**
+	 * Get specific groups
+	 * @param groupnumber 
+	 * @return
+	 */
 	@RequestMapping("/getGroup")
 	public @ResponseBody LinkedHashMap<String, HashSet<OutlierID>> getGroup(@RequestParam(value="groupnumber")  String groupnumber){
 
@@ -815,6 +868,10 @@ public class MethodController {
 	}
 
 
+	/**
+	 * pre compute all files and save them into json file
+	 * @return
+	 */
 	@RequestMapping("/preComputeAllFiles")
 	public int preComputeAllFiles(){
 		return preComputeAllFilesImpl();
@@ -963,6 +1020,10 @@ public class MethodController {
 		return fileNumber;
 	}
 
+	/**
+	 * switch current data plane to another on
+	 * @param filename
+	 */
 	static void changeFileName(String filename){
 		String foldername = FilenameUtils.removeExtension(filename);
 		dataFile=rootPath+File.separator+foldername+File.separator+filename;

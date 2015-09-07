@@ -11,6 +11,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 /**
  * Initialize the servicr settings
  * 1. servelet mapping
+ * 2. TBD
  * @author Hui Zheng
  *
  */

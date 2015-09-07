@@ -18,7 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 /**
- * This is an controller to get file from front-end and store it into 
+ * This is an controller to get file from front-end
+ * 
  * @author Hui Zheng
  *
  */
@@ -27,6 +28,13 @@ public class FileUploadController {
 	private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
 	static String rootPath = "src/main/resources/data";
 
+	/** 
+	 * handle file upload and save it into 
+	 * src/main/resources/data folder
+	 * each data file will have it's own folder
+	 * @param file, the file that user upload
+	 * @return message weather saved successful or not
+	 */
 	@RequestMapping(value="/upload", method=RequestMethod.POST)
 	public @ResponseBody String handleFileUpload(@RequestParam("file") MultipartFile file){
 		String name = null;
@@ -86,11 +94,18 @@ public class FileUploadController {
 	}
 
 
+	/**
+	 * check existing file list
+	 * @return
+	 */
 	@RequestMapping(value="/getExistingFileList")
 	public @ResponseBody LinkedHashSet<String> getExistingFileList(){
 		return getFileList();
 	}
 
+	/** the Implementation of getFileList
+	 * @return
+	 */
 	public LinkedHashSet<String> getFileList(){
 		LinkedHashSet<String> fileSet = new LinkedHashSet<String>();
 		File directory = new File(rootPath);
@@ -121,6 +136,10 @@ public class FileUploadController {
 		return getComputedFileListImpl(false);
 	}
 
+	/**
+	 * @param isComputed true for computed false for not
+	 * @return the set of file name which contains edges.json, graph.json, group0-3.json, node.json
+	 */
 	static public LinkedHashSet<String> getComputedFileListImpl(boolean isComputed){
 		LinkedHashSet<String> fileSet = new LinkedHashSet<String>();
 		File directory = new File(rootPath);
@@ -168,7 +187,7 @@ public class FileUploadController {
 							||graphResult.length!=1
 							||edgesResult.length!=1
 							||nodesResult.length!=1)
-							&&dataSetResult.length!=0);
+									&&dataSetResult.length!=0);
 						if(isQualified){
 							fileSet.add(dataSetResult[0].getName());
 						}else{
