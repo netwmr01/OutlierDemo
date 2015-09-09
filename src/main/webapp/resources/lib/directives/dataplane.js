@@ -1,6 +1,6 @@
 angular.module('indexApp').directive('dataplane',
-    ['$http','$rootScope','$window','updateBoundaryGraph','densityMatrix', 'updateKR', 
-     function($http, $rootScope,$window,updateBoundaryGraph,densityMatrix, updateKR){
+    ['$http', '$window','updateBoundaryGraph','densityMatrix', 'updateKR', 'legendSet',
+     function($http,$window,updateBoundaryGraph,densityMatrix, updateKR,legendSet){
 
     return{
         link: link,
@@ -34,29 +34,29 @@ angular.module('indexApp').directive('dataplane',
             yAxis = d3.svg.axis().scale(yScale).orient("left")
                 .innerTickSize(-width);
 
-        // setup zoom
-        var zoom = d3.behavior.zoom()
-            .scaleExtent([1,10])
-            .on("zoom", zoomed);
-
-        // setup zoomed function
-        function zoomed() {
-            var t = d3.event.translate,
-                s = d3.event.scale;
-            //comstrain zoomed window to bounds of graph
-            t[0] = Math.max(-width*(s-1), Math.min(t[0], 0));
-            t[1] = Math.max(-height*(s-1), Math.min(t[1], 0));
-            zoom.translate(t);
-
-            //redraws axis
-            svg.select(".x.axis").call(xAxis);
-            svg.select(".y.axis").call(yAxis);
-
-            //redraws points
-            svg.selectAll('.dataPoint')
-                .attr("cx", function(d, i) { return xMap(d); })
-                .attr("cy", function(d, i) { return yMap(d); });
-        }
+//        // setup zoom
+//        var zoom = d3.behavior.zoom()
+//            .scaleExtent([1,10])
+//            .on("zoom", zoomed);
+//
+//        // setup zoomed function
+//        function zoomed() {
+//            var t = d3.event.translate,
+//                s = d3.event.scale;
+//            //comstrain zoomed window to bounds of graph
+//            t[0] = Math.max(-width*(s-1), Math.min(t[0], 0));
+//            t[1] = Math.max(-height*(s-1), Math.min(t[1], 0));
+//            zoom.translate(t);
+//
+//            //redraws axis
+//            svg.select(".x.axis").call(xAxis);
+//            svg.select(".y.axis").call(yAxis);
+//
+//            //redraws points
+//            svg.selectAll('.dataPoint')
+//                .attr("cx", function(d, i) { return xMap(d); })
+//                .attr("cy", function(d, i) { return yMap(d); });
+//        }
 
         // setup fill color
         var cValue = function(d) { return d.type;},
@@ -75,7 +75,8 @@ angular.module('indexApp').directive('dataplane',
             .append("g")
             .classed('dataset',true)
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .call(zoom);
+//            .call(zoom)
+            ;
 
         // sets up graph rectangle
         svg
@@ -113,7 +114,7 @@ angular.module('indexApp').directive('dataplane',
 	            xScale.domain([d3.min(data, xValue), d3.max(data, xValue)]);
 	            yScale.domain([d3.min(data, yValue), d3.max(data, yValue)]);
 	
-	            zoom.x(xScale).y(yScale);
+//	            zoom.x(xScale).y(yScale);
 	
 	            // x-axis
 	            svg.append("g")
@@ -178,7 +179,10 @@ angular.module('indexApp').directive('dataplane',
 	                        .style("opacity", 0);
 	                })
 	                .on('click', function(d){
-	                	if(d3.event.shiftKey){
+	                	console.log("current legend: "+legendSet.getCurrentLegendNum())
+	                	if(	legendSet.getCurrentLegendNum() ===1){
+	                		// if the current legend is groups
+	                		// highlights the points that are more outlier for any k value
 	                		d3.select('.comarativeOutlierSource').classed("comparativeOutlierSource",false);
 	                		d3.select(this).classed("comparativeOutlierSource",true);
 	                		console.log(d)
@@ -202,7 +206,7 @@ angular.module('indexApp').directive('dataplane',
 	                				console.log("failed to get comparative outliers")
 	                			});
 	                	}
-	                	else{
+	                	if(legendSet.getCurrentLegendNum() ===0){
 	                        // selects the point to be shown on boundary graph
 	                		var clickedPoint = d3.select(this);
 		                    var currentlySelected =clickedPoint.classed('selected');

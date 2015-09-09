@@ -1,6 +1,6 @@
 //Angular controller for legend under the data set graph
 angular.module('indexApp').controller('legendCtrl',
-    ['$scope', 'legendSet', function($scope,legendSet){
+    ['$scope', 'legendSet', 'updateBoundaryGraph', function($scope,legendSet,updateBoundaryGraph){
     	
 	 $scope.status = {
 	    isopen: false
@@ -20,9 +20,13 @@ angular.module('indexApp').controller('legendCtrl',
 			 //switch for what to do when switching from a legend
 			 switch($scope.currentlyVisible){
 			 case 0:
+				 d3.selectAll(".dataPoint.selected")
+				 	.style("stroke",null)
+				 	.classed('selectedinvis',true)
+				 	.classed('selected',false);
 				 break;
 			 case 1:
-				 //change all dataPoints' group# class to group#invis where # is the group number
+				 //change all dataPoints' group(#) class to group(#)invis where (#) is the group number
 				 d3.selectAll('.dataPoint.group0')
 				 	.classed('group0invis',true)
 				 	.classed('group0',false);
@@ -38,12 +42,20 @@ angular.module('indexApp').controller('legendCtrl',
 				 d3.selectAll('.dataPoint.group3')
 				 	.classed('group3invis',true)
 				 	.classed('group3',false);
+				 
+				 d3.selectAll('.dataPoint.highlight')
+				 	.classed('highlightinvis',true)
+				 	.classed('highlight',false);
 				 break;
 			 }
 			 
 			 //switch for what to do when switching to a legend
 			 switch(selection){
 			 case 0:
+				 d3.selectAll('.selectedinvis')
+				 	.classed('selectedinvis',false)
+				 	.classed('selected',true);
+				 updateBoundaryGraph.update();
 				 break;
 			 case 1:
 				 //change all dataPoints' group#invis class to group# where # is the group number
@@ -62,6 +74,10 @@ angular.module('indexApp').controller('legendCtrl',
 				 d3.selectAll('.group3invis')
 				 	.classed('group3invis',false)
 				 	.classed('group3',true);
+
+				 d3.selectAll('.highlightinvis')
+				 	.classed('highlightinvis',false)
+				 	.classed('highlight',true);
 				 break;
 			 }
 			 //changes currentlyVisible to the selection

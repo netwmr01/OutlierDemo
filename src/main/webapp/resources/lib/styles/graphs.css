@@ -12,6 +12,8 @@
 
 .tick line{
     opacity: 0.2;
+    stroke-width: 2;
+    shape-rendering: crispEdges;
 }
 
 .dot {
@@ -37,11 +39,11 @@
 }
 
 .dataPoint{
-    fill:#1F77B4;
+    fill:#0f0;
 }
 
 .outlier{
-    fill:red;
+    fill:#f00;
 }
 
 .selected{
@@ -65,11 +67,11 @@
 }
 
 .constOut{
-    fill:orange;
+    fill:#800;
 }
 
 .constIn{
-    fill:purple;
+    fill:midnightblue;
 }
 
 .svg-container {
@@ -132,5 +134,5 @@ legend{
 .dataPoint.highlight{
     stroke-opacity:1;
     stroke-width:2	px;
-    stroke:white;
+    stroke:yellow;
 }

@@ -1,6 +1,7 @@
 //Angular controller for the PSE Tab AKA the boundary graph
 angular.module('indexApp').controller('boundaryCtrl',
-    ['$scope', '$window','updateBoundaryGraph', 'updateKR', 'densityMatrix', function($scope,$window,updateBoundaryGraph, updateKR, densityMatrix){
+    ['$scope', '$window','updateBoundaryGraph', 'updateKR', 'densityMatrix', 'getConstLiers', 
+     function($scope,$window,updateBoundaryGraph, updateKR, densityMatrix, getConstLiers){
 
 
     // creates an event listener for the updateBoundary event
@@ -128,6 +129,7 @@ angular.module('indexApp').controller('boundaryCtrl',
         updateBoundaryGraph.setScales(boundaryX,boundaryY);
 
         updateKR.updateKR();
+        getConstLiers.update(0,0,0,0);
         densityMatrix.createDensityMatrix();
     };
 

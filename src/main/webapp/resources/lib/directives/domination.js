@@ -100,7 +100,7 @@ angular.module('indexApp').directive('domination',
 	                        var source = d3.selectAll(".source"+d.id);
 	                        var target = d3.selectAll(".target"+d.id);
 	
-	                        source.each(function(d){
+	                        source.each(function(element){
 	                            // console.log(this);
 	
 	                            linkg.append('line')
@@ -108,22 +108,22 @@ angular.module('indexApp').directive('domination',
 	                                .attr("y1", this.getAttribute('y1'))
 	                                .attr("x2", this.getAttribute('x2'))
 	                                .attr("y2", this.getAttribute('y2'))
-	                                .attr("class","link highlight");
+	                                .attr("class","link link"+d.id+" highlight ");
 	                        });
-	                        target.each(function(d){
+	                        target.each(function(element){
 	
 	                            linkg.append('line')
 	                                .attr("x1", this.getAttribute('x1'))
 	                                .attr("y1", this.getAttribute('y1'))
 	                                .attr("x2", this.getAttribute('x2'))
 	                                .attr("y2", this.getAttribute('y2'))
-	                                .attr("class","link highlight");
+	                                .attr("class","link link"+d.id+" highlight");
 	                        });
 	
 	                    })
 	                    .on("mouseout",function(d){
 	                    	//removes all highlighted links
-	                        d3.selectAll('.link.highlight')
+	                        d3.selectAll('.link.link'+d.id+'.highlight')
 	                            .remove();
 	                    });
 	
