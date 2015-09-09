@@ -1,3 +1,5 @@
+// Angular controller for the data plane
+// Sets the outlier classes for all data points and selected for boundary graph indicators
 angular.module('indexApp').controller('datasetCtrl',
     ['$scope', '$rootScope', 'updateBoundaryGraph', function($scope, $rootScope, updateBoundaryGraph){
 
@@ -45,7 +47,7 @@ angular.module('indexApp').controller('datasetCtrl',
         var constOut = args.data[0];
         var constIn = args.data[1];
 
-        console.log(constOut);
+//        console.log(constOut);
         console.log('starting constant outlier');
         
         //reset current constant outliers

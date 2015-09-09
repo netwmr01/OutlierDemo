@@ -1,3 +1,4 @@
+// Angular controller for the OD Tab AKA sliders
 angular.module('indexApp').controller('sliderCtrl',
     ['$scope', 'updateKR', function($scope, updateKR){
 

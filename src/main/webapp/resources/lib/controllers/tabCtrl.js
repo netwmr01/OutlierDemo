@@ -1,3 +1,4 @@
+// Angular controller for the tabs in the left pane
 angular.module('indexApp').controller('TabCtrl',
     ['$scope', '$window', function($scope,$window){
     

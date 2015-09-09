@@ -1,7 +1,8 @@
+// Angular controller for the upload dialog and the File list
 angular.module('indexApp').controller('uploadCtrl',
-    ['$scope', '$http', '$window', '$modal','$rootScope', function($scope,$http,$window,$modal,$rootScope){
+    ['$scope', '$http', '$modal','$rootScope', function($scope,$http,$modal,$rootScope){
     
-    $scope.files=['1','2','3'];
+    $scope.files=[];
     
 	$scope.open = function () {
 	    var modalInstance = $modal.open({

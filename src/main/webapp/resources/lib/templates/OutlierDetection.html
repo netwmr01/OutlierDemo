@@ -1,11 +1,12 @@
+<!-- HTML Snippet for OD Tab AKA Sliders -->
 <div id="sliders" ng-controller="sliderCtrl">
     <form class="row-fluid" ng-submit="updateKRValue()" >
         <p>K Value: </p>
         <input type="number" min="0" max="10" class="string-to-number" ng-model="kvalue">
-        <input name="kvaluerange" type="range" min="1" max="10" ng-model="kvalue" ng-mouseup="updateKRValue()">
+        <input name="kvaluerange" type="range" min="1" max="10" ng-model="kvalue" >
         <p>R Value: </p>
         <input type="number" min="0" max="10000" class="string-to-number" ng-model="rvalue" >
-        <input  name="rvaluerange" type="range" min="1" max="10000" ng-model="rvalue" ng-mouseup="updateKRValue()">
+        <input  name="rvaluerange" type="range" min="1" max="10000" ng-model="rvalue">
         <br>
         <p></p>
         <button type="submit" class="btn btn-primary"> Update</button>

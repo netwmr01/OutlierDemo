@@ -1,3 +1,4 @@
+//Angular controller for legend under the data set graph
 angular.module('indexApp').controller('legendCtrl',
     ['$scope', 'legendSet', function($scope,legendSet){
     	
@@ -128,7 +129,7 @@ angular.module('indexApp').controller('legendCtrl',
     	 setVisibility();
     	 });
      
-     //gets the list of invisible classes and sets all datapoints with those classes to 0
+     //gets the list of invisible classes and sets the opacity of all datapoints with those classes to 0
      function setVisibility(){
     	 //gets the list of invisible classes from the legendSet service
     	 var invisible = legendSet.getVisible();

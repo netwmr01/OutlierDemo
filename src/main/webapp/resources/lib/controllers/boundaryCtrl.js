@@ -1,3 +1,4 @@
+//Angular controller for the PSE Tab AKA the boundary graph
 angular.module('indexApp').controller('boundaryCtrl',
     ['$scope', '$window','updateBoundaryGraph', 'updateKR', 'densityMatrix', function($scope,$window,updateBoundaryGraph, updateKR, densityMatrix){
 
