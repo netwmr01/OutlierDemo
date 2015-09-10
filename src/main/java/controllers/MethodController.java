@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -66,12 +68,17 @@ public class MethodController {
 	static String dataFile = "ocMitreDemo.txt";
 	static String rootPath="src/main/resources/data";
 
+	
 	/**
 	 * Instantiate the ONION Engine:userStudy
 	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
 	 */
 	public MethodController(){
 		dataFile=rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile;
+		File file = new File("haha.txt");
+		file.mkdirs();
+		System.out.println("Default root: "+file.getAbsolutePath());
+		
 		userStudy = new UserStudy(dataFile);
 		idDataPlane=getIdDataPlane();
 	}
