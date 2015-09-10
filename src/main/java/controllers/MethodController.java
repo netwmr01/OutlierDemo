@@ -7,6 +7,7 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -46,6 +49,13 @@ import util.dsrg.cs.wpi.edu.SortedCandidate;
 
 /** 
  * get http request from front-end and return computed dataset
+ * Contains methods that:
+ * 1. Communicating with ONION engine
+ * 2. Logic layer computation that take http request and return respond to front-end
+ * 3. Switch current dataset or datafile that user working on
+ * 4. TBD]
+ * 
+ * Attention: the default data file is ocMitreDemo(data.ocMitreDemo.ocMitreDemo.txt)
  * @author Hui Zheng
  * 
  */
@@ -57,14 +67,20 @@ public class MethodController {
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
 	static String dataFile = "ocMitreDemo.txt";
-	static String rootPath="src/main/resources/data";
+	static String rootPath="resources/data";
 
+	
 	/**
 	 * Instantiate the ONION Engine:userStudy
 	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
 	 */
 	public MethodController(){
 		dataFile=rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile;
+//		File file = new File("haha.txt");
+//		file.mkdirs();
+//		System.out.println("Default root: "+file.getAbsolutePath());
+//		
+//		InputStream is = getClass().getResourceAsStream("/storedProcedures.sql");
 		userStudy = new UserStudy(dataFile);
 		idDataPlane=getIdDataPlane();
 	}
