@@ -67,7 +67,7 @@ public class MethodController {
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
 	static String dataFile = "ocMitreDemo.txt";
-	static String rootPath="resources/data";
+	static String rootPath="src/main/resources/data";
 
 	
 	/**
