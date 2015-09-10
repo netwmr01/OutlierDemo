@@ -7,6 +7,7 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class MethodController {
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
 	static String dataFile = "ocMitreDemo.txt";
-	static String rootPath="src/main/resources/data";
+	static String rootPath="resources/data";
 
 	
 	/**
@@ -75,10 +76,11 @@ public class MethodController {
 	 */
 	public MethodController(){
 		dataFile=rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile;
-		File file = new File("haha.txt");
-		file.mkdirs();
-		System.out.println("Default root: "+file.getAbsolutePath());
-		
+//		File file = new File("haha.txt");
+//		file.mkdirs();
+//		System.out.println("Default root: "+file.getAbsolutePath());
+//		
+//		InputStream is = getClass().getResourceAsStream("/storedProcedures.sql");
 		userStudy = new UserStudy(dataFile);
 		idDataPlane=getIdDataPlane();
 	}
