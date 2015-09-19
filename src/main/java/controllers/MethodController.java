@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,7 +69,9 @@ public class MethodController {
 	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
 	static String dataFile = "ocMitreDemo.txt";
-	static String rootPath="src/main/resources/data";
+	static String rootPath="data";
+	
+	
 
 	
 	/**
@@ -75,12 +79,23 @@ public class MethodController {
 	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
 	 */
 	public MethodController(){
-		dataFile=rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile;
+		
+//		dataFile=rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile;
 //		File file = new File("haha.txt");
 //		file.mkdirs();
 //		System.out.println("Default root: "+file.getAbsolutePath());
 //		
 //		InputStream is = getClass().getResourceAsStream("/storedProcedures.sql");
+		
+		Resource resource =new ClassPathResource(rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile);
+		
+		try {
+			dataFile=resource.getFile().getAbsolutePath();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		userStudy = new UserStudy(dataFile);
 		idDataPlane=getIdDataPlane();
 	}
@@ -111,7 +126,14 @@ public class MethodController {
 	public @ResponseBody Set<MapOutlierCandidate> getDataPlane(@RequestParam(value="filename",required= false ) String filename){
 		if(filename!=null){
 			String foldername = FilenameUtils.removeExtension(filename);
-			dataFile=rootPath+File.separator+foldername+File.separator+filename;
+			Resource resource =new ClassPathResource(rootPath+File.separator+foldername+File.separator+filename);
+			
+			try {
+				dataFile=resource.getFile().getAbsolutePath();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		System.out.println("The path of the datafile:"+dataFile);
@@ -896,7 +918,15 @@ public class MethodController {
 	
 	public static int preComputeAllFilesImpl(){
 		String currentFileName= dataFile;
-		String currentRootPath = rootPath;
+		Resource resource =new ClassPathResource(rootPath);
+		String currentRootPath = null;
+		try {
+			currentRootPath=resource.getFile().getAbsolutePath();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		int fileNumber=0;
 		File directory = new File(currentRootPath);
 		File[] fList = directory.listFiles();
@@ -1043,6 +1073,15 @@ public class MethodController {
 	static void changeFileName(String filename){
 		String foldername = FilenameUtils.removeExtension(filename);
 		dataFile=rootPath+File.separator+foldername+File.separator+filename;
+		
+		Resource resource =new ClassPathResource(rootPath+File.separator+foldername+File.separator+filename);
+		
+		try {
+			dataFile=resource.getFile().getAbsolutePath();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if(FileUploadController.getComputedFileListImpl(false).contains(filename))
 			dm.setupAllGroups(dataFile);
 	}

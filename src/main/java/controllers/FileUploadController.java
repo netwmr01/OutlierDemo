@@ -4,11 +4,14 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,11 +29,30 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class FileUploadController {
 	private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
-	static String rootPath = "src/main/resources/data";
+	static String rootPath = "data";
+	
+	public FileUploadController() {
+		// TODO Auto-generated constructor stub
+		Resource resource =new ClassPathResource(rootPath);
+		
+		try {
+			rootPath=resource.getFile().getAbsolutePath();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/** 
 	 * handle file upload and save it into 
-	 * src/main/resources/data folder
+	 * 		Resource resource =new ClassPathResource(rootPath);
+		
+		try {
+			rootPath=resource.getFile().getAbsolutePath();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	 * each data file will have it's own folder
 	 * @param file, the file that user upload
 	 * @return message weather saved successful or not
