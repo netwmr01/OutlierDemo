@@ -102,7 +102,7 @@ angular.module('indexApp').directive('dataplane',
             .style("opacity", 0);
 
         // load data
-        $http.get("http://localhost:8080/getDataPlane")
+        $http.get("/getDataPlane")
 	        .success(function(data) {
 //	        	console.log(data.length);
 //	        	Array.prototype.push.apply(data, data);
@@ -218,7 +218,7 @@ angular.module('indexApp').directive('dataplane',
 	                	}
 	                });
 	            
-	            $http.get("http://localhost:8080/getGroup?groupnumber=0123")
+	            $http.get("/getGroup?groupnumber=0123")
 		            .success(function(groups) {
 		                // console.log(groups);
 		                console.log(groups);

@@ -65,7 +65,7 @@ angular.module('indexApp').directive('domination',
                 .gravity(1);
 
 
-            $http.get("http://localhost:8080/getGraph")
+            $http.get("/getGraph")
             	.success(function(graph) {
 	                var linkg = svg.append("g")
 	                    .attr('class','links');
@@ -170,7 +170,7 @@ angular.module('indexApp').directive('domination',
 	
 	                // console.log("done adjusting graph");
 	
-	                $http.get("http://localhost:8080/getGroup?groupnumber=123")
+	                $http.get("/getGroup?groupnumber=123")
 		                .success(function(groups) {
 		                    console.log(groups);
 		                    for( var group in groups){

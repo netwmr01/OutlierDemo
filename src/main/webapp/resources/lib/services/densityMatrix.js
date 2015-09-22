@@ -30,8 +30,7 @@ angular.module('indexApp').factory('densityMatrix',
 		if(args){
 //			console.log("smaller density matrix")
 			console.log(args);
-			$http.get('http://localhost:8080/getKSortedListRange?kmin='+
-                       (args[0]+1)+'&kmax='+args[1]+'&rmin='+args[2]+'&rmax='+args[3])
+			$http.get('/getKSortedListRange?kmin='+(args[0]+1)+'&kmax='+args[1]+'&rmin='+args[2]+'&rmax='+args[3])
 			.success(function(data){
 					// console.log(data);
 					

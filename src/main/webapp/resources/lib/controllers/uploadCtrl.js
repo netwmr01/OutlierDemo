@@ -17,7 +17,7 @@ angular.module('indexApp').controller('uploadCtrl',
 	}
 	
 	
-	$http.get('http://localhost:8080/getComputedFileList')
+	$http.get('/getComputedFileList')
 		.success(function(data){
 			$scope.files=data;
 		    console.log($scope.files);

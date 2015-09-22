@@ -29,7 +29,7 @@ angular.module('indexApp').factory('updateKR',
         }
         else{
         	console.log("getting outliers");
-	        $http.get('http://localhost:8080/method1?k='+kvalue+'&r='+rvalue)
+	        $http.get('/method1?k='+kvalue+'&r='+rvalue)
 	            .success(function(data){
 //	            	console.log(data);
                     // broadcasts the redrawDataPoints with the data argument
