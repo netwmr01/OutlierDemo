@@ -9,7 +9,7 @@ angular.module('indexApp').factory('getConstLiers',
 				var empty = [[],[]];
             	$rootScope.$broadcast('redrawConstLiers',{data:empty});
 			}else{
-		        $http.get('/getConstants?kmin='+kmin+'&kmax='+kmax+'&rmin='+rmin+'&rmax='+rmax)
+		        $http.get('getConstants?kmin='+kmin+'&kmax='+kmax+'&rmin='+rmin+'&rmax='+rmax)
 		        .success(function(data){
 		        	console.log("ConstLiers request success");
 	            	$rootScope.$broadcast('redrawConstLiers',{data:data});

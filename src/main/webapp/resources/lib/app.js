@@ -5,7 +5,7 @@ angular.module('indexApp',['ui.bootstrap']);
 //
 //app.controller('Hello',
 //    function($scope, $http){
-//        $http.get('http://localhost:8080/greeting').
+//        $http.get('greeting').
 //            success(function(data) {
 //                $scope.greeting = data;
 //            }).
