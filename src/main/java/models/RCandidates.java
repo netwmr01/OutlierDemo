@@ -7,9 +7,9 @@ package models;
  */
 public class RCandidates {
 	public Double r;
-	public int id;
+	public String id;
 	
-	public RCandidates(Double r, int id){
+	public RCandidates(Double r, String id){
 		this.r=r;
 		this.id=id;
 	}

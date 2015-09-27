@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
@@ -63,41 +65,34 @@ import util.dsrg.cs.wpi.edu.SortedCandidate;
  */
 @RestController
 public class MethodController {
-	static DominationManager dm;
-	UserStudy userStudy;//get the instance of the userStudy interface 
-	ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
-	HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
-	ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
-	static String dataFile = "ocMitreDemo.txt";
-	static String rootPath="data";
-	
-	
+	private static final Logger logger = LoggerFactory.getLogger(MethodController.class);//instantiate the logger, output to tomcat console
+	private static DominationManager dm; //manager that in charge of VertexCover engine
+	private UserStudy userStudy;//get the instance of the userStudy interface 
+	private ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
+	private HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
+	private ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
+	private static String dataFile = "ocMitreDemo.txt";
+	private static String rootPath= "data";
 
-	
+
+
+
 	/**
-	 * Instantiate the ONION Engine:userStudy
+	 * Instantiate the ONION Engine: userStudy
 	 * load the id DataPlane at the beginning for Constant/Current Outlier detection
 	 */
-	public MethodController(){
-		
-//		dataFile=rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile;
-//		File file = new File("haha.txt");
-//		file.mkdirs();
-//		System.out.println("Default root: "+file.getAbsolutePath());
-//		
-//		InputStream is = getClass().getResourceAsStream("/storedProcedures.sql");
-		
-		Resource resource =new ClassPathResource(rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile);
-		
+	public MethodController(){		
+
+		Resource resource ;// feed the datafile from the class path into the resource
+		resource = new ClassPathResource(rootPath+File.separator+FilenameUtils.removeExtension(dataFile)+File.separator+dataFile);
+
 		try {
 			dataFile=resource.getFile().getAbsolutePath();
-			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info(e.getStackTrace().toString());
 		}
-		userStudy = new UserStudy(dataFile);
-		idDataPlane=getIdDataPlane();
+		userStudy = new UserStudy(dataFile);//instantiate the userstudy engine
+		idDataPlane=getIdDataPlane();//instantiate the dataplane when start the server
 	}
 
 	/**
@@ -111,7 +106,7 @@ public class MethodController {
 
 		while(ite.hasNext()){
 			MapOutlierCandidate oc = (MapOutlierCandidate) ite.next();
-			idDataPlane.add(new OutlierID(Integer.valueOf(((MapNode)(oc.getPoint())).getID())));
+			idDataPlane.add(new OutlierID(((MapNode)(oc.getPoint())).getID()));
 		}
 		return idDataPlane;
 
@@ -120,27 +115,28 @@ public class MethodController {
 	/** 
 	 * return the entire data plane to front end
 	 * @param filename
-	 * @return
+	 * @return the set of MapOutlierCandidate
 	 */
 	@RequestMapping("/getDataPlane")
 	public @ResponseBody Set<MapOutlierCandidate> getDataPlane(@RequestParam(value="filename",required= false ) String filename){
 		if(filename!=null){
 			String foldername = FilenameUtils.removeExtension(filename);
 			Resource resource =new ClassPathResource(rootPath+File.separator+foldername+File.separator+filename);
-			
+
 			try {
 				dataFile=resource.getFile().getAbsolutePath();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.info(e.getStackTrace().toString());
 			}
 		}
 
-		System.out.println("The path of the datafile:"+dataFile);
-		userStudy = new UserStudy(dataFile);
-		idDataPlane=getIdDataPlane();
+		logger.info("The path of the datafile:"+dataFile);
+		
+		userStudy = new UserStudy(dataFile);//get new instance of userstudy
+		idDataPlane=getIdDataPlane();//update the current dataplane
 		return userStudy.getPoints();
 	}
+	
 
 	/**
 	 * Request for method1, user can input k r value pair to get the Outliers
@@ -152,9 +148,9 @@ public class MethodController {
 	public @ResponseBody Collection<OutlierID> getMethod1(@RequestParam(value="k") String k, @RequestParam(value="r") String r){
 		//translate the k and r value from string to int and double
 		int intk=Integer.valueOf(k);
-		System.out.println("K value getted"+k);
+		logger.info("K value getted"+k);
 		double doubler=Double.valueOf(r);
-		System.out.println("R value getted"+r);
+		logger.info("R value getted"+r);
 
 		//get the raw data from the ONION engine
 		Collection<SortedCandidate> rawResult = userStudy.getMethod1(intk, doubler);
@@ -165,7 +161,7 @@ public class MethodController {
 		while(ite.hasNext()){
 			SortedCandidate data = (SortedCandidate) ite.next();
 			String id = (String)((MapNode) data.getPoint()).getID();
-			result.add(new OutlierID(Integer.valueOf(id)));
+			result.add(new OutlierID(id));
 		}
 
 		System.out.println(result.toString());
@@ -219,12 +215,12 @@ public class MethodController {
 		while(iteCO.hasNext()){
 			SortedCandidate data = (SortedCandidate) iteCO.next();
 			String id = (String)((MapNode) data.getPoint()).getID();
-			constantOutlier.add(new OutlierID(Integer.valueOf(id)));
+			constantOutlier.add(new OutlierID(id));
 		}
 		while(iteCI.hasNext()){
 			SortedCandidate data= (SortedCandidate) iteCI.next();
 			String id = (String)((MapNode) data.getPoint()).getID();
-			minOutliers.add(new OutlierID(Integer.valueOf(id)));
+			minOutliers.add(new OutlierID(id));
 		}
 
 		constantInlier.addAll(idDataPlane);
@@ -279,11 +275,12 @@ public class MethodController {
 			String tag = "k"+counter;
 			HashSet<OutlierID> set = new HashSet<OutlierID>();
 			for(SortedCandidate sc:s){
-				set.add(new OutlierID(Integer.valueOf(((MapNode) sc.getPoint()).getID())));
+				set.add(new OutlierID(((MapNode) sc.getPoint()).getID()));
 			}
 			result.put(tag, set);
 			counter++;
 		}
+		int i = 232;
 		return result;
 	}
 
@@ -313,8 +310,7 @@ public class MethodController {
 		//time complicity O(n)
 		while(iteCCO.hasNext()){
 			SortedCandidate data = (SortedCandidate) iteCCO.next();
-			int id = Integer.valueOf((String)((MapNode) data.getPoint()).getID());
-			OutlierID candidate = new OutlierID(id);
+			OutlierID candidate = new OutlierID((String)((MapNode) data.getPoint()).getID());
 			if(constantSet.contains(candidate)){
 				continue;
 			}
@@ -364,7 +360,7 @@ public class MethodController {
 			Iterator<SortedCandidate> scite = sortedCandidateList.iterator();
 			while(scite.hasNext()){
 				SortedCandidate sc = (SortedCandidate) scite.next();
-				RCandidates rcandidates = new RCandidates(sc.r,Integer.valueOf(((MapNode)sc.getPoint()).getID()));
+				RCandidates rcandidates = new RCandidates(sc.r,(((MapNode)sc.getPoint()).getID()));
 				rlist.add(rcandidates);
 			}
 			dp.put(key, rlist);
@@ -420,7 +416,7 @@ public class MethodController {
 				}else if (sc.r>Double.valueOf(rmax)){
 					break;
 				}
-				RCandidates rcandidates = new RCandidates(sc.r,Integer.valueOf(((MapNode)sc.getPoint()).getID()));
+				RCandidates rcandidates = new RCandidates(sc.r,((MapNode)sc.getPoint()).getID());
 				rlist.add(rcandidates);
 			}
 			dp.put(key,rlist);
@@ -439,7 +435,7 @@ public class MethodController {
 	 * @return
 	 */
 	@RequestMapping("/getDominationGroups")
-	public @ResponseBody LinkedHashMap<String,ArrayList<Integer>> getDominationGroups(){
+	public @ResponseBody LinkedHashMap<String,ArrayList<String>> getDominationGroups(){
 		String groupnumber="123";
 		ArrayList<Integer> index_list = new ArrayList<Integer>();
 		char[] numbers = groupnumber.toCharArray();
@@ -453,7 +449,7 @@ public class MethodController {
 
 		File data = new File(dataFile);
 		File dir = new File(data.getParent());
-		LinkedHashMap<String, ArrayList<Integer>> resulthm = new LinkedHashMap<String, ArrayList<Integer>>();
+		LinkedHashMap<String, ArrayList<String>> resulthm = new LinkedHashMap<String, ArrayList<String>>();
 		while(ite.hasNext()){
 			groupNumber=ite.next();
 			File jsonFile=null;
@@ -469,9 +465,9 @@ public class MethodController {
 				try {
 					gr = mapper.readValue(jsonFile, new TypeReference<LinkedHashMap<String, HashSet<OutlierID>>>(){});
 					HashSet<OutlierID> hs = gr.get("group"+groupNumber);
-					ArrayList<Integer> i = new ArrayList<Integer>();
+					ArrayList<String> i = new ArrayList<String>();
 					for(OutlierID id: hs){
-						int oid = id.getID();
+						String oid = id.getID();
 						i.add(oid);
 					}
 					resulthm.put("group"+groupNumber,i);
@@ -482,7 +478,7 @@ public class MethodController {
 			}
 		}
 		return resulthm;
-//		return getDominationGroupsImpl();
+		//		return getDominationGroupsImpl();
 	}
 
 	/**
@@ -534,7 +530,7 @@ public class MethodController {
 	}
 
 
-	
+
 	/**
 	 * @return all nodes of the graph depends on currents dataplane
 	 */
@@ -591,7 +587,7 @@ public class MethodController {
 		}
 		while(nodes_ite.hasNext()){
 			MapNode mn = (MapNode) nodes_ite.next().getPoint();
-			SimpleMapNode smn = new SimpleMapNode(Integer.valueOf(mn.getID()), mn.getLat(), mn.getLon());
+			SimpleMapNode smn = new SimpleMapNode(mn.getID(), mn.getLat(), mn.getLon());
 			nodes.add(smn);
 		}
 		return nodes;
@@ -644,7 +640,7 @@ public class MethodController {
 		Iterator<Pair> edges_ite = dm.getAllEdges().iterator();
 		while(edges_ite.hasNext()){
 			Pair pair = edges_ite.next();
-			SimplePair simplepair = new SimplePair(Integer.valueOf(pair.s.n.getID()),Integer.valueOf(pair.t.n.getID()));
+			SimplePair simplepair = new SimplePair(pair.s.n.getID(),pair.t.n.getID());
 			edges.add(simplepair);
 		}
 		return edges;
@@ -727,7 +723,7 @@ public class MethodController {
 		}
 		while(nodes_ite.hasNext()){
 			MapNode mn = (MapNode) nodes_ite.next().getPoint();
-			SimpleData smn = new SimpleMapNode(Integer.valueOf(mn.getID()), mn.getLat(), mn.getLon());
+			SimpleData smn = new SimpleMapNode(mn.getID(), mn.getLat(), mn.getLon());
 			nodes.add(smn);
 		}
 		hm.put("nodes", nodes);
@@ -735,7 +731,7 @@ public class MethodController {
 		Iterator<Pair> edges_ite = dm.getAllEdges().iterator();
 		while(edges_ite.hasNext()){
 			Pair pair = edges_ite.next();
-			SimpleData simplepair = new SimplePair(Integer.valueOf(pair.s.n.getID()),Integer.valueOf(pair.t.n.getID()));
+			SimpleData simplepair = new SimplePair(pair.s.n.getID(),pair.t.n.getID());
 			edges.add(simplepair);
 		}
 		hm.put("links", edges);
@@ -791,7 +787,7 @@ public class MethodController {
 		return hs;
 	}
 
-	
+
 	/**
 	 * Get specific groups
 	 * @param groupnumber 
@@ -894,7 +890,7 @@ public class MethodController {
 				}
 			}
 			while(mocIte.hasNext()){
-				hs.add(new OutlierID(Integer.valueOf(mocIte.next().n.getID())));
+				hs.add(new OutlierID((mocIte.next().n.getID())));
 			}
 			String key="group"+groupNumber;
 			hm.put(key,hs);
@@ -914,8 +910,8 @@ public class MethodController {
 	public int preComputeAllFiles(){
 		return preComputeAllFilesImpl();
 	}
-	
-	
+
+
 	public static int preComputeAllFilesImpl(){
 		String currentFileName= dataFile;
 		Resource resource =new ClassPathResource(rootPath);
@@ -926,7 +922,7 @@ public class MethodController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		int fileNumber=0;
 		File directory = new File(currentRootPath);
 		File[] fList = directory.listFiles();
@@ -996,14 +992,7 @@ public class MethodController {
 								new BufferedOutputStream(new FileOutputStream(df));
 						stream.write(json.getBytes());
 						stream.close();
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (JsonProcessingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
+					}catch(Exception e){
 						e.printStackTrace();
 					}
 				}
@@ -1073,9 +1062,9 @@ public class MethodController {
 	static void changeFileName(String filename){
 		String foldername = FilenameUtils.removeExtension(filename);
 		dataFile=rootPath+File.separator+foldername+File.separator+filename;
-		
+
 		Resource resource =new ClassPathResource(rootPath+File.separator+foldername+File.separator+filename);
-		
+
 		try {
 			dataFile=resource.getFile().getAbsolutePath();
 		} catch (IOException e) {

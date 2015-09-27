@@ -1,9 +1,9 @@
 package models;
 
 public class SimplePair implements SimpleData{
-	public int source;
-	public int target;
-	public SimplePair(int source, int target){
+	public String source;
+	public String target;
+	public SimplePair(String source, String target){
 		this.source=source;
 		this.target=target;
 	}
