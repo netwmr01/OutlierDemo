@@ -20,6 +20,20 @@ angular.module('indexApp').directive('boundary',
         setParameters();
         plotGraph();
 
+        //updates the axis of boundary graph
+        scope.$on('updatedBoundaryScales',function(){
+           var scales = updateBoundaryGraph.getScales();
+           x = scales.x;
+           y = scales.y;
+           xAxis.scale(x);
+           yAxis.scale(y);
+
+           d3.select('.boundary.x.axis')
+            .call(xAxis);
+           d3.select('.boundary.y.axis')
+            .call(yAxis);
+        });
+
         //sets the parameters
         function setParameters(){
             // magins and dimensions of the svg
@@ -137,20 +151,6 @@ angular.module('indexApp').directive('boundary',
                     shiftDown = false;
                 }
             });
-
-        //updates the axis of boundary graph
-        scope.$on('updatedBoundaryScales',function(){
-           var scales = updateBoundaryGraph.getScales();
-           x = scales.x;
-           y = scales.y;
-           xAxis.scale(x);
-           yAxis.scale(y);
-
-           d3.select('.boundary.x.axis')
-            .call(xAxis);
-           d3.select('.boundary.y.axis')
-            .call(yAxis);
-        });
 
         // creates interations with the boundary canvas
         svg.on('mousedown', function(){
