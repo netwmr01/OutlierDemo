@@ -75,7 +75,7 @@ angular.module('indexApp').directive('dataplane',
             .append("g")
             .classed('dataset',true)
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-//            .call(zoom)
+//           .call(zoom)
             ;
 
         // sets up graph rectangle
@@ -104,8 +104,6 @@ angular.module('indexApp').directive('dataplane',
         // load data
         $http.get("getDataPlane")
 	        .success(function(data) {
-//	        	console.log(data.length);
-//	        	Array.prototype.push.apply(data, data);
 	        	console.log(data.length);
 	            densityMatrix.setData(data);
 	            console.log("Finish loading data plane values");
@@ -220,17 +218,12 @@ angular.module('indexApp').directive('dataplane',
 	            
 	            $http.get("getGroup?groupnumber=0123")
 		            .success(function(groups) {
-		                // console.log(groups);
 		                console.log(groups);
 		                for( var group in groups){
 		                    groups[group].forEach(setGroups, group);
 		                }
 		                function setGroups(gNode, index, array){
-		//	                if(index%1000 === 0){
-		//	                	console.log(this);
-		//	                	console.log(gNode.id)}
 			              	var id = gNode.id;
-//			              	if(d3.select('#id'+id).size()===0) console.log(id);
 			                d3.select('#id'+id)
 			              		.classed(this+"invis",true);
 			              }
