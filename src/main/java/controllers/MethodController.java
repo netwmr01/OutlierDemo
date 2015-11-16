@@ -488,7 +488,7 @@ public class MethodController {
 	public HashMap<String,ArrayList<Integer>> getDominationGroupsImpl(){
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -572,7 +572,7 @@ public class MethodController {
 
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -630,7 +630,7 @@ public class MethodController {
 	public static ArrayList<SimplePair> getAllEdgesImpl(){
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -707,7 +707,7 @@ public class MethodController {
 		//instantiate the DominationManager to start initialize the graph
 		DominationManager dm=null;
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -839,7 +839,7 @@ public class MethodController {
 
 
 		try{
-			dm = DominationManager.getInstance();
+			dm = DominationManager.getInstance(dataFile);
 
 		}catch(Exception e){
 			System.out.println(e);
@@ -927,7 +927,7 @@ public class MethodController {
 		File directory = new File(currentRootPath);
 		File[] fList = directory.listFiles();
 
-		dm = DominationManager.getInstance();
+		dm = DominationManager.getInstance(dataFile);
 
 		for(final File f: fList){
 			if(f.isDirectory()){
