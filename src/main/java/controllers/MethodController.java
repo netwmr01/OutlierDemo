@@ -7,7 +7,6 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -22,8 +21,6 @@ import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,10 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import demo.dsrg.cs.wpi.edu.UserStudy;
 import detection.dsrg.cs.wpi.edu.KSortedDataPlain;
@@ -65,13 +60,14 @@ import util.dsrg.cs.wpi.edu.SortedCandidate;
  */
 @RestController
 public class MethodController {
+	
 	private static final Logger logger = LoggerFactory.getLogger(MethodController.class);//instantiate the logger, output to tomcat console
 	private static DominationManager dm; //manager that in charge of VertexCover engine
 	private UserStudy userStudy;//get the instance of the userStudy interface 
 	private ArrayList<OutlierID> idDataPlane = new ArrayList<OutlierID>();//instantialize the dataplane at the beginning of the webapp starts
 	private HashSet<OutlierID> constantSet = new HashSet<OutlierID>();//Put the result of the constant outlier into a hashset, then use it as an dictionary to check later current outlier detecting.  
 	private ArrayList<OutlierID> outlierCandidates = new ArrayList<OutlierID>();// after the user select the region then, store the outlier candidates in this set
-	private static String dataFile = "ocMitreDemo.txt";
+	private static String dataFile = "ocMitreDemo.txt";// initiate loaded data file
 	private static String rootPath= "data";
 
 
@@ -119,6 +115,7 @@ public class MethodController {
 	 */
 	@RequestMapping("/getDataPlane")
 	public @ResponseBody Set<MapOutlierCandidate> getDataPlane(@RequestParam(value="filename",required= false ) String filename){
+		//if specified file to load, change global source of the 
 		if(filename!=null){
 			String foldername = FilenameUtils.removeExtension(filename);
 			Resource resource =new ClassPathResource(rootPath+File.separator+foldername+File.separator+filename);
