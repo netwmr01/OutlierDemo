@@ -225,7 +225,7 @@ angular.module('indexApp').directive('boundary',
         function createAxis(){
             // Set the domain of data
             x.domain([0, 10.5]);
-            y.domain([0,100]);
+            y.domain([0, 4000]);
 
             // Add the X Axis
             svg.append("g")
