@@ -39,7 +39,7 @@ public class FileUploadController {
 			rootPath=resource.getFile().getAbsolutePath();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.debug("File upload constructor error"+e.getMessage());
 		}
 	}
 
@@ -59,6 +59,8 @@ public class FileUploadController {
 	 */
 	@RequestMapping(value="/upload", method=RequestMethod.POST)
 	public @ResponseBody String handleFileUpload(@RequestParam("file") MultipartFile file){
+		logger.info("Already into the handelFileupload controller!");
+		System.out.println("Already into the handelFileupload controller!");
 		String name = null;
 		if (!file.isEmpty()) {
 			try {
